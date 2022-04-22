@@ -17,7 +17,7 @@ def gauge_download(station, minyear, maxyear):
     Returns
        df (pd.DataFrame): precipitation gauge values
     """
-    filepath = '_Data/RawGauge_BeasSutlej_.xlsx'
+    filepath = '~/data/RawGauge_BeasSutlej_.xlsx'
     daily_df = pd.read_excel(filepath, sheet_name=station)
     # daily_df.dropna(inplace=True)
 
@@ -32,7 +32,7 @@ def gauge_download(station, minyear, maxyear):
     df['Date'] = df['Date'] + 1970
 
     all_station_dict = pd.read_csv(
-        '_Data/gauge_info.csv', index_col='station').T
+        '~/data/gauge_info.csv', index_col='station').T
 
     # to xarray DataSet
     lat, lon, _elv = all_station_dict[station]
