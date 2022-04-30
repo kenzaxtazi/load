@@ -16,7 +16,7 @@ import load.location_sel as ls
 def collect_APHRO(location, minyear, maxyear):
     """ Downloads data from APHRODITE model"""
 
-    aphro_ds = xr.open_dataset("~/data/APHRODITE/aphrodite_indus_1951_2016.nc")
+    aphro_ds = xr.open_dataset("data/APHRODITE/aphrodite_indus_1951_2016.nc")
 
     if type(location) == str:
         loc_ds = ls.select_basin(aphro_ds, location)
@@ -38,7 +38,7 @@ def merge_og_files():
 
     print('1951-2007')
     for f in tqdm(glob.glob(
-            '~/data/APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
+            'data/APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
         ds = xr.open_dataset(f)
         ds = ds.rename({'latitude': 'lat', 'longitude': 'lon', 'precip': 'tp'})
         ds_cropped = ds.tp.sel(lon=slice(extent[1], extent[3]),
@@ -50,7 +50,7 @@ def merge_og_files():
 
     print('2007-2016')
     for f in tqdm(
-            glob.glob('~/data/APHRODITE/APHRO_MA_025deg_V1101_EXR1/*.nc')):
+            glob.glob('data/APHRODITE/APHRO_MA_025deg_V1101_EXR1/*.nc')):
         ds = xr.open_dataset(f)
         ds = ds.rename({'precip': 'tp'})
         ds_cropped = ds.tp.sel(lon=slice(extent[1], extent[3]),
@@ -68,4 +68,4 @@ def merge_og_files():
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
     ds_merged['time'] = time_arr
 
-    ds_merged.to_netcdf("~/data/APHRODITE/aphrodite_indus_1951_2016.nc")
+    ds_merged.to_netcdf("data/APHRODITE/aphrodite_indus_1951_2016.nc")

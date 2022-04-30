@@ -39,26 +39,34 @@ def gauge_download(station, minyear, maxyear):
     era5_ds = era5_da[['tp']]
     # Interpolate at location
     all_station_dict = pd.read_csv(
-        '~/data/gauge_info.csv', index_col='station').T
+        'data/gauge_info.csv', index_col='station').T
     lat, lon, _elv = all_station_dict[station]
     loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
     tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
     return tim_ds
 
 
-def value_gauge_download(station, minyear, maxyear):
+def value_gauge_download(stations, minyear, maxyear):
     """Download and format ERA5 data for a given station name in the VALUE dataset."""
     # Load data
     era5_da = download_data('value', xarray=True)
-    era5_ds = era5_da[['tp']]
-    station_name = ' ' + station.upper()
-    # Interpolate at location
-    all_station_dict = pd.read_csv(
-        '~/data/VALUE/stations.txt', index_col=' name').T
-    _, lon, lat, _elv, _ = all_station_dict[station_name]
-    loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
-    tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
-    return tim_ds
+    era5_ds = era5_da[['tp', 'z']]
+    tim_ds = era5_ds.sel(time=slice(minyear, maxyear))
+    
+    loc_list = []
+    for station in stations:
+        print(station)
+        station_name = ' ' + station.upper()
+        # Interpolate at location
+        all_station_dict = pd.read_csv(
+            'data/VALUE/stations.txt', index_col=' name').T
+        _, lon, lat, _elv , _ = all_station_dict[station_name]
+        loc_ds = tim_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
+        loc_df = loc_ds.to_dataframe()
+        loc_list.append(loc_df)
+
+    ds = pd.concat(loc_list)    
+    return ds
 
 
 def download_data(location, xarray=False, ensemble=False, all_var=False):
@@ -78,7 +86,7 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
 
     basin = ls.basin_finder(location)
 
-    path = "~/data/ERA5/"
+    path = "data/ERA5/"
     now = datetime.datetime.now()
 
     if ensemble is True:
@@ -91,7 +99,7 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
         filename = "combi_data" + "_" + basin + \
             "_" + now.strftime("%m-%Y") + ".csv"
 
-    filepath = path + filename
+    filepath = os.path.expanduser(path + filename)
     print(filepath)
 
     if not os.path.exists(filepath):
@@ -202,44 +210,44 @@ def mean_downloader(basin):
 
     # EOFs for 200hPa
     eof1_z200_c = mean_formatter(
-        "~/data/ERA5/regional_z200_EOF1.nc",
+        "data/ERA5/regional_z200_EOF1.nc",
         coords=[40, 60, 35, 70], name="EOF200C1")
     eof1_z200_b = mean_formatter(
-        "~/data/ERA5/regional_z200_EOF1.nc",
+        "data/ERA5/regional_z200_EOF1.nc",
         coords=[19, 83, 16, 93], name="EOF200B1")
     eof2_z200_c = mean_formatter(
-        "~/data/ERA5/regional_z200_EOF2.nc",
+        "data/ERA5/regional_z200_EOF2.nc",
         coords=[40, 60, 35, 70], name="EOF200C2")
     eof2_z200_b = mean_formatter(
-        "~/data/ERA5/regional_z200_EOF2.nc",
+        "data/ERA5/regional_z200_EOF2.nc",
         coords=[19, 83, 16, 93], name="EOF200B2")
 
     # EOFs for 500hPa
     eof1_z500_c = mean_formatter(
-        "~/data/ERA5/regional_z500_EOF1.nc",
+        "data/ERA5/regional_z500_EOF1.nc",
         coords=[40, 60, 35, 70], name="EOF500C1")
     eof1_z500_b = mean_formatter(
-        "~/data/ERA5/regional_z500_EOF1.nc",
+        "data/ERA5/regional_z500_EOF1.nc",
         coords=[19, 83, 16, 93], name="EOF500B1")
     eof2_z500_c = mean_formatter(
-        "~/data/ERA5/regional_z500_EOF2.nc",
+        "data/ERA5/regional_z500_EOF2.nc",
         coords=[40, 60, 35, 70], name="EOF500C2")
     eof2_z500_b = mean_formatter(
-        "~/data/ERA5/regional_z500_EOF2.nc",
+        "data/ERA5/regional_z500_EOF2.nc",
         coords=[19, 83, 16, 93], name="EOF500B2")
 
     # EOFs for 850hPa
     eof1_z850_c = mean_formatter(
-        "~/data/ERA5/regional_z850_EOF1.nc",
+        "data/ERA5/regional_z850_EOF1.nc",
         coords=[40, 60, 35, 70], name="EOF850C1")
     eof1_z850_b = mean_formatter(
-        "~/data/ERA5/regional_z850_EOF1.nc",
+        "data/ERA5/regional_z850_EOF1.nc",
         coords=[19, 83, 16, 93], name="EOF850B1")
     eof2_z850_c = mean_formatter(
-        "~/data/ERA5/regional_z850_EOF2.nc",
+        "data/ERA5/regional_z850_EOF2.nc",
         coords=[40, 60, 35, 70], name="EOF850C2")
     eof2_z850_b = mean_formatter(
-        "~/data/ERA5/regional_z850_EOF2.nc",
+        "data/ERA5/regional_z850_EOF2.nc",
         coords=[19, 83, 16, 93], name="EOF850B2")
 
     eof_df = pd.concat(
@@ -286,23 +294,23 @@ def eof_downloader(basin, all_var=False):
 
     # EOF UIB
     eof1_z200_u = eof_formatter(
-        "~/data/regional_z200_EOF1.nc", basin, name="EOF200U1"
+        "data/regional_z200_EOF1.nc", basin, name="EOF200U1"
     )
     eof1_z500_u = eof_formatter(
-        "~/data/regional_z500_EOF1.nc", basin, name="EOF500U1"
+        "data/regional_z500_EOF1.nc", basin, name="EOF500U1"
     )
     eof1_z850_u = eof_formatter(
-        "~/data/regional_z850_EOF1.nc", basin, name="EOF850U1"
+        "data/regional_z850_EOF1.nc", basin, name="EOF850U1"
     )
 
     eof2_z200_u = eof_formatter(
-        "~/data/regional_z200_EOF2.nc", basin, name="EOF200U2"
+        "data/regional_z200_EOF2.nc", basin, name="EOF200U2"
     )
     eof2_z500_u = eof_formatter(
-        "~/data/regional_z500_EOF2.nc", basin, name="EOF500U2"
+        "data/regional_z500_EOF2.nc", basin, name="EOF500U2"
     )
     eof2_z850_u = eof_formatter(
-        "~/data/regional_z850_EOF2.nc", basin, name="EOF850U2"
+        "data/regional_z850_EOF2.nc", basin, name="EOF850U2"
     )
 
     uib_eofs = pd.concat(
@@ -358,7 +366,7 @@ def update_cds_monthly_data(
         ],
         area=[40, 70, 30, 85],
         pressure_level=None,
-        path="~/data/ERA5/",
+        path="data/ERA5/",
         qualifier=None):
     """
     Imports the most recent version of the given monthly ERA5 dataset as a
@@ -398,11 +406,10 @@ def update_cds_monthly_data(
             + ".nc"
         )
 
-    filepath = path + filename
+    filepath = os.path.expanduser(path + filename)
 
     # Only download if updated file is not present locally
     if not os.path.exists(filepath):
-
         current_year = now.strftime("%Y")
         years = np.arange(1979, int(current_year) + 1, 1).astype(str)
         months = np.arange(1, 13, 1).astype(str)
@@ -449,7 +456,7 @@ def update_cds_hourly_data(
         variables=["geopotential"],
         pressure_level="200",
         area=[90, -180, -90, 180],
-        path="~/data/ERA5/",
+        path="data/ERA5/",
         qualifier=None):
     """
     Imports the most recent version of the given hourly ERA5 dataset as a

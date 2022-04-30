@@ -25,13 +25,13 @@ from tqdm import tqdm
 
 import load.location_sel as ls
 
-# trmm_filepath = '~/data/GPM/subset_GPM_3PR_06_20210611_090054.txt'
-# gpm_filepath = '~/data/GPM'
+# trmm_filepath = 'data/GPM/subset_GPM_3PR_06_20210611_090054.txt'
+# gpm_filepath = 'data/GPM'
 
 
 def collect_GPM(location, minyear, maxyear):
     """ Load GPM data """
-    gpm_ds = xr.open_dataset("~/data/GPM/gpm_pr_unc_2000-2010.nc")
+    gpm_ds = xr.open_dataset("data/GPM/gpm_pr_unc_2000-2010.nc")
 
     if type(location) == str:
         loc_ds = ls.select_basin(gpm_ds, location)
@@ -51,7 +51,7 @@ def hdf5_download(url_filepath):
     with open(url_filepath) as f:
         for line in tqdm(f):
             url = line[:-1]
-            path = '~/data/GPM/' + url.split('/', -1)[-1]
+            path = 'data/GPM/' + url.split('/', -1)[-1]
             r = requests.get(url, allow_redirects=True)
             with open(path, 'wb') as file:
                 file.write(r.content)
@@ -88,7 +88,7 @@ def to_netcdf():
     lon_arr = np.arange(-180, 180, 0.25)
     lat_arr = np.arange(-67, 67, 0.25)
 
-    for file in tqdm(glob.glob('~/data/GPM/PR_2000-2010/*')):
+    for file in tqdm(glob.glob('data/GPM/PR_2000-2010/*')):
 
         f = h5py.File(file, 'r')
         dset = f['Grids']
@@ -109,4 +109,4 @@ def to_netcdf():
     ds_merged = xr.merge(ds_list)
     print(ds_merged)
     ds_merged['tp'] = ds_merged['tp'] * 24  # to mm/day
-    ds_merged.to_netcdf("~/data/GPM/gpm_pr_unc_2000-2010.nc")
+    ds_merged.to_netcdf("data/GPM/gpm_pr_unc_2000-2010.nc")
