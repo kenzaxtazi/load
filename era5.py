@@ -39,7 +39,7 @@ def gauge_download(station, minyear, maxyear):
     era5_ds = era5_da[['tp']]
     # Interpolate at location
     all_station_dict = pd.read_csv(
-        'data/gauge_info.csv', index_col='station').T
+        '/data/gauge_info.csv', index_col='station').T
     lat, lon, _elv = all_station_dict[station]
     loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
     tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
@@ -59,7 +59,7 @@ def value_gauge_download(stations, minyear, maxyear):
         station_name = ' ' + station.upper()
         # Interpolate at location
         all_station_dict = pd.read_csv(
-            'data/VALUE/stations.txt', index_col=' name').T
+            '/data/VALUE/stations.txt', index_col=' name').T
         _, lon, lat, _elv , _ = all_station_dict[station_name]
         loc_ds = tim_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
         loc_df = loc_ds.to_dataframe()
