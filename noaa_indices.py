@@ -3,7 +3,7 @@ import urllib
 import numpy as np
 import datetime
 import pandas as pd
-
+from pwd import pwd
 
 def indice_downloader(all_var=False):
     """ Return indice Dataframe."""
@@ -36,7 +36,7 @@ def update_url_data(url, name):
     Import the most recent dataset from URL and return it as pandas DataFrame.
     """
 
-    filepath = "/data/hpcdata/users/kenzi22/data/NOAA/"
+    filepath = pwd + "data/NOAA/"
     now = datetime.datetime.now()
     file = filepath + name + "-" + now.strftime("%m-%Y") + ".csv"
 

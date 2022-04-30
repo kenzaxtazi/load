@@ -9,7 +9,3 @@ In particular, they should be exported from the submodule:
 the middle of each month (float)
 - with 'tp' for the variable name for total precipitation in mm/day (float)
 """
-
-import sys
-sys.path.append("/home/users/ktazi")
-sys.path.append("/data/hpcdata/users/kenzi22")

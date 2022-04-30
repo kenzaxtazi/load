@@ -5,7 +5,7 @@ Raw gauge measurements from the Beas and Sutlej valleys
 import numpy as np
 import pandas as pd
 from math import floor, ceil
-
+from pwd import pwd
 
 
 def gauge_download(station, minyear, maxyear):
@@ -17,7 +17,7 @@ def gauge_download(station, minyear, maxyear):
     Returns
        df (pd.DataFrame): precipitation gauge values
     """
-    filepath = '/data/hpcdata/users/kenzi22/data/RawGauge_BeasSutlej_.xlsx'
+    filepath = pwd + 'data/RawGauge_BeasSutlej_.xlsx'
     daily_df = pd.read_excel(filepath, sheet_name=station)
     # daily_df.dropna(inplace=True)
 
@@ -32,7 +32,7 @@ def gauge_download(station, minyear, maxyear):
     df['Date'] = df['Date'] + 1970
 
     all_station_dict = pd.read_csv(
-        '/data/hpcdata/users/kenzi22/data/gauge_info.csv', index_col='station').T
+        pwd + 'data/gauge_info.csv', index_col='station').T
 
     # to xarray DataSet
     lat, lon, _elv = all_station_dict[station]
@@ -63,7 +63,7 @@ def all_gauge_data(minyear, maxyear, threshold=None):
     e.g. for 10 year period -> 4018 - 365 = 3653
     """
 
-    filepath = "/data/hpcdata/users/kenzi22/data/qc_sushiwat_observations_MGM.xlsx"
+    filepath = pwd + "data/qc_sushiwat_observations_MGM.xlsx"
     daily_df = pd.read_excel(filepath)
 
     maxy_str = str(maxyear) + '-01-01'

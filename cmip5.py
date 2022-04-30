@@ -1,14 +1,14 @@
 import xarray as xr
 import numpy as np
 import datetime
-
+from pwd import pwd
 
 def collect_CMIP5():
     """ Downloads data from CMIP5 """
     cmip_59_84_ds = xr.open_dataset(
-        "/data/hpcdata/users/kenzi22/data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_195912-198411.nc")
+        pwd + "data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_195912-198411.nc")
     cmip_84_05_ds = xr.open_dataset(
-        "/data/hpcdata/users/kenzi22/data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_198412-200512.nc")
+        pwd + "data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_198412-200512.nc")
     cmip_ds = cmip_84_05_ds.merge(cmip_59_84_ds)  # in kg/m2/s
     cmip_ds = cmip_ds.assign_attrs(plot_legend="HadCM3 historical")
     cmip_ds = cmip_ds.rename({'pr': 'tp'})
