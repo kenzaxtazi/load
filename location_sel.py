@@ -19,13 +19,13 @@ def select_basin(dataset, location):
 
 def find_mask(location):
     """ Returns a mask filepath for given location """
-    mask_dic = {'ngari': '/data/Masks/Ngari_mask.nc',
-                'khyber': '/data/Masks/Khyber_mask.nc',
-                'gilgit': '/data/Masks/Gilgit_mask.nc',
-                'uib': '/data/Masks/ERA5_Upper_Indus_mask.nc',
-                'sutlej': '/data/Masks/Sutlej_mask.nc',
-                'beas': '/data/Masks/Beas_mask.nc',
-                'beas_sutlej': '/data/Masks/Beas_Sutlej_mask.nc',
+    mask_dic = {'ngari': '/data/hpcdata/users/kenzi22/data/Masks/Ngari_mask.nc',
+                'khyber': '/data/hpcdata/users/kenzi22/data/Masks/Khyber_mask.nc',
+                'gilgit': '/data/hpcdata/users/kenzi22/data/Masks/Gilgit_mask.nc',
+                'uib': '/data/hpcdata/users/kenzi22/data/Masks/ERA5_Upper_Indus_mask.nc',
+                'sutlej': '/data/hpcdata/users/kenzi22/data/Masks/Sutlej_mask.nc',
+                'beas': '/data/hpcdata/users/kenzi22/data/Masks/Beas_mask.nc',
+                'beas_sutlej': '/data/hpcdata/users/kenzi22/data/Masks/Beas_Sutlej_mask.nc',
                 'korea': None,
                 'france': None,
                 'value': None}
