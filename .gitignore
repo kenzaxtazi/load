@@ -1,12 +1,2 @@
-__pycache__/value.cpython-37.pyc
-.ipynb_checkpoints/value-checkpoint.py
-__pycache__/__init__.cpython-37.pyc
-__pycache__/__init__.cpython-38.pyc
-__pycache__/era5.cpython-37.pyc
-__pycache__/era5.cpython-38.pyc
-__pycache__/location_sel.cpython-37.pyc
-__pycache__/location_sel.cpython-38.pyc
-__pycache__/noaa_indices.cpython-37.pyc
-__pycache__/noaa_indices.cpython-38.pyc
-__pycache__/value.cpython-38.pyc
+__pycache__/*
 *checkpoint.py
