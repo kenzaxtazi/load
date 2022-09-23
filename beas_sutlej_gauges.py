@@ -10,7 +10,6 @@ from math import floor, ceil
 from pwd import pwd
 
 
-
 def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
     """
     Download and format raw gauge data.
@@ -43,21 +42,21 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     # to xarray DataSet
     lat, lon, _elv = all_station_dict[station]
     df_ind = df.set_index('Date')
-    ds = df_ind.to_xarray()
-    ds = ds.assign_attrs(plot_legend="Gauge data")
-    ds = ds.assign_coords({'lon': lon})
-    ds = ds.assign_coords({'lat': lat})
-    ds = ds.rename({'Date': 'time'})
+    da = df_ind.to_xarray()
+    da = da.assign_attrs(plot_legend="Gauge data")
+    da = da.assign_coords({'lon': lon})
+    da = da.assign_coords({'lat': lat})
+    da = da.rename({'Date': 'time'})
 
     # Standardise time resolution
-    raw_maxyear = float(ds.time.max())
-    raw_minyear = float(ds.time.min())
+    raw_maxyear = float(da.time.max())
+    raw_minyear = float(da.time.min())
     time_arr = np.arange(floor(raw_minyear*12-1)/12 + 1. /
                          24., ceil(raw_maxyear*12-1)/12, 1./12.)
-    ds['time'] = time_arr
+    da['time'] = time_arr
 
-    tims_ds = ds.sel(time=slice(minyear, maxyear))
-    return tims_ds
+    tims_da = da.sel(time=slice(minyear, maxyear))
+    return tims_da
 
 
 def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.DataArray:
@@ -96,12 +95,12 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
     df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9 + 1970
 
     df_ind = df.set_index('Date')
-    ds = df_ind.to_xarray()
-    ds = ds.assign_attrs(plot_legend="Gauge data")
-    ds = ds.rename({'Date': 'time'})
+    da = df_ind.to_xarray()
+    da = da.assign_attrs(plot_legend="Gauge data")
+    da = da.rename({'Date': 'time'})
 
     # Standardise time resolution
     time_arr = np.arange(round(minyear) + 1./24., maxyear, 1./12.)
-    ds['time'] = time_arr
+    da['time'] = time_arr
 
-    return ds
+    return da

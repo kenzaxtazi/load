@@ -9,8 +9,18 @@ from pwd import pwd
 import load.location_sel as ls
 
 
-def collect_WRF(location, minyear, maxyear):
-    """ Load uncorrected WRF run data. """
+def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
+    """
+    Load uncorrected WRF run data.
+
+    Args:
+        location (str or tuple): location string or lat/lon coordinate tuple
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: WRF
+    """
     wrf_ds = xr.open_dataset(pwd + 'data/Bannister/Bannister_WRF_raw.nc')
 
     if type(location) == str:
