@@ -3,8 +3,10 @@ import numpy as np
 import datetime
 from pwd import pwd
 
+
 def collect_CORDEX():
     """ Downloads data from CORDEX East Asia model """
+
     cordex_90_ds = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
         "HadRM3P_v1_mon_199001-199012.nc")
@@ -29,8 +31,16 @@ def collect_CORDEX():
     return cordex_ds
 
 
-def standardised_time(dataset):
-    """Returns array of standardised times to plot."""
+def standardised_time(dataset: xr.DataArray) -> np.array:
+    """
+    Return array of standardised times to plot.
+
+    Args:
+        dataset (xr.DataArray): 
+
+    Returns:
+        np.array: standardised time values
+    """
     try:
         utime = dataset.time.values.astype(int)/(1e9 * 60 * 60 * 24 * 365)
     except Exception:
@@ -38,4 +48,4 @@ def standardised_time(dataset):
         time2 = np.array([datetime.datetime.strptime(
             d, "%Y-%m-%d %H:%M:%S") for d in time])
         utime = np.array([d.timestamp() for d in time2]) / (60 * 60 * 24 * 365)
-    return(utime + 1970)
+    return (utime + 1970)
