@@ -13,8 +13,18 @@ from pwd import pwd
 import load.location_sel as ls
 
 
-def collect_APHRO(location, minyear, maxyear):
-    """ Downloads data from APHRODITE model"""
+def collect_APHRO(location: str or tuple, minyear: float, maxyear:float) -> xr.DataArray:
+    """
+    Download data from APHRODITE model.
+
+    Args:
+        location (str or tuple): location string or lat/lon coordinate tuple
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: APHRODITE data
+    """
 
     aphro_ds = xr.open_dataset(pwd + "data/APHRODITE/aphrodite_indus_1951_2016.nc")
 
@@ -31,7 +41,7 @@ def collect_APHRO(location, minyear, maxyear):
 
 
 def merge_og_files():
-    """ Function to open, crop and merge the APHRODITE data """
+    """ Function to open, crop and merge the raw APHRODITE data files"""
 
     ds_list = []
     extent = ls.basin_extent('indus')
