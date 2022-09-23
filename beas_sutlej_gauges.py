@@ -2,20 +2,26 @@
 Raw gauge measurements from the Beas and Sutlej valleys
 """
 
+from xmlrpc.client import boolean
 import numpy as np
 import pandas as pd
+import xarray as xr
 from math import floor, ceil
 from pwd import pwd
 
 
-def gauge_download(station, minyear, maxyear):
+
+def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
     """
-    Download and format raw gauge data
+    Download and format raw gauge data.
 
     Args:
-        station (str): station name (capitalised)
-    Returns
-       df (pd.DataFrame): precipitation gauge values
+        station (str): station name (with first letter capitalised)
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: gauge precipitation values
     """
     filepath = pwd + 'data/RawGauge_BeasSutlej_.xlsx'
     daily_df = pd.read_excel(filepath, sheet_name=station)
@@ -54,13 +60,19 @@ def gauge_download(station, minyear, maxyear):
     return tims_ds
 
 
-def all_gauge_data(minyear, maxyear, threshold=None):
+def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.DataArray:
     """
-    Download data between specified dates for all active stations between two
-    dates.
-    Can specify the treshold for the the total number of active days
-    during that period:
-    e.g. for 10 year period -> 4018 - 365 = 3653
+    Download data between specified dates for all active stations between two dates.
+    Can specify the minimum number of active days during that period:
+    e.g. for 10 year period -> 4018 - 365 = 3653.
+
+    Args:
+        minyear (float): start date in years
+        maxyear (float): end date in years
+        threshold (int, optional): minimum number of active days. Defaults to None.
+
+    Returns:
+        xr.DataArray: gauge precipitation values
     """
 
     filepath = pwd + "data/qc_sushiwat_observations_MGM.xlsx"
