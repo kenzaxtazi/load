@@ -3,8 +3,9 @@ import numpy as np
 import datetime
 from pwd import pwd
 
+
 def collect_CMIP5():
-    """ Downloads data from CMIP5 """
+    """ Download data from CMIP5. """
     cmip_59_84_ds = xr.open_dataset(
         pwd + "data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_195912-198411.nc")
     cmip_84_05_ds = xr.open_dataset(
@@ -17,8 +18,16 @@ def collect_CMIP5():
     return cmip_ds
 
 
-def standardised_time(dataset):
-    """ Returns array of standardised times to plot """
+def standardised_time(dataset: xr.DataArray) -> np.array:
+    """
+    Return array of standardised times to plot.
+
+    Args:
+        dataset (xr.DataArray): 
+
+    Returns:
+        np.array: standardised time values
+    """
     try:
         utime = dataset.time.values.astype(int)/(1e9 * 60 * 60 * 24 * 365)
     except Exception:
@@ -26,4 +35,4 @@ def standardised_time(dataset):
         time2 = np.array([datetime.datetime.strptime(
             d, "%Y-%m-%d %H:%M:%S") for d in time])
         utime = np.array([d.timestamp() for d in time2]) / (60 * 60 * 24 * 365)
-    return(utime + 1970)
+    return (utime + 1970)
