@@ -19,7 +19,7 @@ def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.Da
         maxyear (float): end date in years
 
     Returns:
-        xr.DataArray: WRF
+        xr.DataArray: WRF data
     """
     wrf_ds = xr.open_dataset(pwd + 'data/Bannister/Bannister_WRF_raw.nc')
 
@@ -35,10 +35,21 @@ def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.Da
     return ds
 
 
-def collect_BC_WRF(location, minyear, maxyear):
-    """ Load bias-corrected WRF run data. """
+def collect_BC_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
+    """
+    Load bias-corrected WRF run data. 
 
-    bc_wrf_ds = xr.open_dataset(pwd + 'data/Bannister/Bannister_WRF_corrected.nc')
+    Args:
+        location (str or tuple): location string or lat/lon coordinate tuple
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: bias-corrected WRF data
+    """
+
+    bc_wrf_ds = xr.open_dataset(
+        pwd + 'data/Bannister/Bannister_WRF_corrected.nc')
 
     if type(location) == str:
         loc_ds = ls.select_basin(bc_wrf_ds, location)

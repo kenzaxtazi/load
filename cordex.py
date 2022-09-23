@@ -4,8 +4,13 @@ import datetime
 from pwd import pwd
 
 
-def collect_CORDEX():
-    """ Downloads data from CORDEX East Asia model """
+def collect_CORDEX() -> xr.DataArray:
+    """
+    Downloads data from CORDEX East Asia model.
+
+    Returns:
+        xr.DataArray: CORDEX East Asia data
+    """
 
     cordex_90_ds = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
@@ -47,5 +52,6 @@ def standardised_time(dataset: xr.DataArray) -> np.array:
         time = np.array([d.strftime() for d in dataset.time.values])
         time2 = np.array([datetime.datetime.strptime(
             d, "%Y-%m-%d %H:%M:%S") for d in time])
-        utime = np.array([d.timestamp() for d in time2]) / (60 * 60 * 24 * 365)
+        utime = np.array([d.timestamp()
+                          for d in time2]) / (60 * 60 * 24 * 365)
     return (utime + 1970)

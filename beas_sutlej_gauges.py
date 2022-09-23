@@ -102,5 +102,4 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
     # Standardise time resolution
     time_arr = np.arange(round(minyear) + 1./24., maxyear, 1./12.)
     da['time'] = time_arr
-
     return da
