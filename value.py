@@ -19,7 +19,7 @@ def formatting_data(monthly=True):
     """
 
     # Import precipitation data
-    df = pd.read_csv(pwd + 'data/VALUE/precip.txt')
+    df = pd.read_csv('data/VALUE_ECA_86_v2/precip.txt')
     df = df.astype(float, errors='ignore')
     df['time'] = pd.to_datetime(df['YYYYMMDD'], format="%Y%m%d")
     df = df.drop(columns=['YYYYMMDD'])
@@ -31,27 +31,29 @@ def formatting_data(monthly=True):
         df2.index = time_arr
         df2 = df2.stack().reset_index()
     if monthly == False:
-        df2 = df
-        time_arr = np.arange(1961 + 1./24., 2011, 1./12.)
+        df2 = df.resample('D', on='time').mean()
+        time_arr = year_into_days(1961, 2011)
         df2.index = time_arr
         df2 = df2.stack().reset_index()
+        df2 = df2[:-1]
     df2 = df2.rename(
         {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
 
     # Import station data and combine
-    df4 = pd.read_csv(pwd + 'data/VALUE/stations.txt')
+    df4 = pd.read_csv('data/VALUE_ECA_86_v2/stations.txt',
+                      sep='\t', lineterminator='\r')
     df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
     df7 = df2.join(df4.set_index('station_id'), on='station_id')
 
     df7 = df7.rename({' name': 'name', ' longitude': 'lon', ' latitude': 'lat',
                       ' altitude': 'alt', }, axis=1)
-    df7 = df7.drop([' source'], axis=1)
+    df7 = df7.drop(['source'], axis=1)
 
     if monthly == True:
-        df7.to_csv(pwd + 'data/VALUE/value_rsamp.csv')
+        df7.to_csv('data/VALUE_ECA_86_v2/value_rsamp.csv')
     if monthly == False:
-        df7.to_csv(pwd + 'data/VALUE/value_daily.csv')
+        df7.to_csv('data/VALUE_ECA_86_v2/value_daily.csv')
 
 
 def all_gauge_data(minyear, maxyear, threshold=None):
@@ -63,7 +65,7 @@ def all_gauge_data(minyear, maxyear, threshold=None):
     e.g. for 10 year period -> 4018 - 365 = 3653
     """
 
-    filepath = pwd + 'data/VALUE/value_rsamp.csv'
+    filepath = 'data/VALUE/value_rsamp.csv'
     df = pd.read_csv(filepath)
     df = df.drop(['Unnamed: 0'], axis=1)
     mask = (df['time'] >= minyear) & (df['time'] < maxyear)
@@ -85,3 +87,24 @@ def gauge_download(station, minyear, maxyear):
     station_df = df[df['name'] == station]
 
     return station_df
+
+
+def year_into_days(start_year: float, end_year: float) -> np.array:
+    """Divide years into days
+
+    Args:
+        start_year (float): year to start array
+        end_year (float): year to end array
+
+    Returns:
+        np.array: array in years with daily resolution 
+    """
+    final_arr = np.array([])
+    year_arr = np.arange(start_year, end_year)
+    for y in year_arr:
+        if y % 4 < 0.001:
+            year_in_days_arr = np.arange(y, y+1, 1/366)
+        else:
+            year_in_days_arr = np.arange(y, y+1, 1/365)
+        final_arr = np.append(final_arr, year_in_days_arr)
+    return final_arr
