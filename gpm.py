@@ -24,7 +24,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-import load.location_sel as ls
+import location_sel as ls
 
 # trmm_filepath = pwd + 'data/GPM/subset_GPM_3PR_06_20210611_090054.txt'
 # gpm_filepath = pwd + 'data/GPM'
