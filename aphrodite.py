@@ -9,7 +9,7 @@ import glob
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
-from pwd import pwd
+
 import location_sel as ls
 
 

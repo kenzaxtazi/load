@@ -5,7 +5,7 @@ Raw and bias corrected (Bannister et al.) WRF output.
 import xarray as xr
 import numpy as np
 from scipy.interpolate import griddata
-from pwd import pwd
+
 import location_sel as ls
 
 

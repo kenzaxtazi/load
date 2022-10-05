@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from math import floor, ceil
-from pwd import pwd
 
 
 def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:

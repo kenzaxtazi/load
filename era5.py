@@ -13,7 +13,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import cdsapi
-from pwd import pwd
+
 
 import load.location_sel as ls
 from load.noaa_indices import indice_downloader

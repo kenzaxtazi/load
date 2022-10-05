@@ -5,7 +5,7 @@ CRU dataset
 import datetime
 import xarray as xr
 import numpy as np
-from pwd import pwd
+
 
 import location_sel as ls
 

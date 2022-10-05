@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import richdem as rd
-from pwd import pwd
+
 
 def generate_slope_aspect():
     """Generate slope and aspect from DEM."""
@@ -34,6 +34,7 @@ def generate_slope_aspect():
 
     streamlined_dem_ds = dem_ds[['elevation', 'slope', 'aspect']]
     streamlined_dem_ds.to_netcdf(pwd + 'data/SRTM_data.nc')
+
 
 def find_slope(station):
     """Return slope for given station."""

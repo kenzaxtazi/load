@@ -22,7 +22,7 @@ import requests
 import xarray as xr
 import numpy as np
 from tqdm import tqdm
-from pwd import pwd
+
 
 import load.location_sel as ls
 
