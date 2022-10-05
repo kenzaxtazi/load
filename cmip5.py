@@ -5,7 +5,7 @@ from pwd import pwd
 
 
 def collect_CMIP5():
-    """ Download data from CMIP5. """
+    """Download data from CMIP5."""
     cmip_59_84_ds = xr.open_dataset(
         pwd + "data/cmip5/pr_Amon_HadCM3_historical_r1i1p1_195912-198411.nc")
     cmip_84_05_ds = xr.open_dataset(

@@ -12,28 +12,28 @@ def collect_CORDEX() -> xr.DataArray:
         xr.DataArray: CORDEX East Asia data
     """
 
-    cordex_90_ds = xr.open_dataset(
+    cordex_90_da = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
         "HadRM3P_v1_mon_199001-199012.nc")
-    cordex_91_00_ds = xr.open_dataset(
+    cordex_91_00_da = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
         "HadRM3P_v1_mon_199101-200012.nc")
-    cordex_01_ds = xr.open_dataset(
+    cordex_01_da = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
         "HadRM3P_v1_mon_200101-201012.nc")
-    cordex_02_11_ds = xr.open_dataset(
+    cordex_02_11_da = xr.open_dataset(
         pwd + "data/cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
         "HadRM3P_v1_mon_201101-201111.nc")
-    cordex_90_00_ds = cordex_90_ds.merge(cordex_91_00_ds)
-    cordex_01_11_ds = cordex_01_ds.merge(cordex_02_11_ds)
-    cordex_ds = cordex_01_11_ds.merge(cordex_90_00_ds)  # in kg/m2/s
-    cordex_ds = cordex_ds.assign_attrs(
+    cordex_90_00_da = cordex_90_da.merge(cordex_91_00_da)
+    cordex_01_11_da = cordex_01_da.merge(cordex_02_11_da)
+    cordex_da = cordex_01_11_da.merge(cordex_90_00_da)  # in kg/m2/s
+    cordex_da = cordex_da.assign_attrs(
         plot_legend="CORDEX EA - MOHC-HadRM3P historical")
-    cordex_ds = cordex_ds.rename_vars({'pr': 'tp'})
-    cordex_ds['tp'] *= 60 * 60 * 24   # to mm/day
-    cordex_ds['time'] = standardised_time(cordex_ds)
+    cordex_da = cordex_da.rename_vars({'pr': 'tp'})
+    cordex_da['tp'] *= 60 * 60 * 24   # to mm/day
+    cordex_da['time'] = standardised_time(cordex_da)
 
-    return cordex_ds
+    return cordex_da
 
 
 def standardised_time(dataset: xr.DataArray) -> np.array:

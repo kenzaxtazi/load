@@ -19,8 +19,19 @@ import load.location_sel as ls
 from load.noaa_indices import indice_downloader
 
 
-def collect_ERA5(location, minyear, maxyear):
-    """ Downloads data from ERA5 for a given location"""
+def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
+    """
+    Download data from ERA5 for a given location
+
+    Args:
+        location (str or tuple): location string or lat/lon coordinate tuple
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: ERA5 data
+    """
+
     era5_ds = download_data(location, xarray=True)
     if type(location) == str:
         loc_ds = ls.select_basin(era5_ds, location)
@@ -47,13 +58,23 @@ def gauge_download(station, minyear, maxyear):
     return tim_ds
 
 
-def value_gauge_download(stations, minyear, maxyear):
-    """Download and format ERA5 data for a given station name in the VALUE dataset."""
+def value_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.DataArray:
+    """
+    Download and format ERA5 data for a given station name in the VALUE dataset.
+
+    Args:
+        stations (list): station names (with first letter capitalised)
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: ERA5 precipitation values at VALUE stations
+    """
     # Load data
     era5_da = download_data('value', xarray=True)
     era5_ds = era5_da[['tp', 'z']]
     tim_ds = era5_ds.sel(time=slice(minyear, maxyear))
-    
+
     loc_list = []
     for station in stations:
         print(station)
@@ -61,12 +82,13 @@ def value_gauge_download(stations, minyear, maxyear):
         # Interpolate at location
         all_station_dict = pd.read_csv(
             '/data/hpcdata/users/kenzi22/data/VALUE/stations.txt', index_col=' name').T
-        _, lon, lat, _elv , _ = all_station_dict[station_name]
-        loc_ds = tim_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
+        _, lon, lat, _elv, _ = all_station_dict[station_name]
+        loc_ds = tim_ds.interp(
+            coords={"lon": lon, "lat": lat}, method="nearest")
         loc_df = loc_ds.to_dataframe()
         loc_list.append(loc_df)
 
-    ds = pd.concat(loc_list)    
+    ds = pd.concat(loc_list)
     return ds
 
 
@@ -351,7 +373,7 @@ def standardised_time(dataset):
         time2 = np.array([datetime.datetime.strptime(
             d, "%Y-%m-%d %H:%M:%S") for d in time])
         utime = np.array([d.timestamp() for d in time2]) / (60 * 60 * 24 * 365)
-    return(utime + 1970)
+    return (utime + 1970)
 
 
 def update_cds_monthly_data(
@@ -403,7 +425,7 @@ def update_cds_monthly_data(
             + "_"
             + qualifier
             + "_"
-            + "03-2022" #now.strftime("%m-%Y")
+            + "03-2022"  # now.strftime("%m-%Y")
             + ".nc"
         )
 

@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 from tqdm import tqdm
 from pwd import pwd
-import load.location_sel as ls
+import location_sel as ls
 
 
 def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
@@ -42,7 +42,7 @@ def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.
 
 
 def merge_og_files():
-    """ Function to open, crop and merge the raw APHRODITE data files"""
+    """Function to open, crop and merge the raw APHRODITE data files."""
 
     da_list = []
     extent = ls.basin_extent('indus')
