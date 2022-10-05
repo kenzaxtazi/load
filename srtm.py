@@ -33,13 +33,13 @@ def generate_slope_aspect():
     dem_ds['aspect'] = (('nlat', 'nlon'), aspect_arr)
 
     streamlined_dem_ds = dem_ds[['elevation', 'slope', 'aspect']]
-    streamlined_dem_ds.to_netcdf(pwd + 'data/SRTM_data.nc')
+    streamlined_dem_ds.to_netcdf('data/SRTM_data.nc')
 
 
 def find_slope(station):
     """Return slope for given station."""
-    dem_ds = xr.open_dataset(pwd + 'data/SRTM_data.nc')
-    all_station_dict = pd.read_csv(pwd + 'data/gauge_info.csv')
+    dem_ds = xr.open_dataset('data/SRTM_data.nc')
+    all_station_dict = pd.read_csv('data/gauge_info.csv')
     location = all_station_dict[station]
     station_slope = dem_ds.interp(
         coords={"nlon": location[1], "nlat": location[0]}, method="nearest")
