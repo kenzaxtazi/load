@@ -15,7 +15,7 @@ import pandas as pd
 import cdsapi
 
 
-import location_sel as ls
+import load.location_sel as ls
 from load.noaa_indices import indice_downloader
 
 
