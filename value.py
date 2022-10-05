@@ -10,31 +10,49 @@ VALUE dataset
 
 """
 
-def formatting_data():
-    
+
+def formatting_data(monthly=True):
+    """
+    Create new file with data in useable format. 
+
+    Args:
+        monthly (bool, optional): whether to resample to monthly data. Defaults to True.
+    """
+
     # Import precipitation data
     df = pd.read_csv(pwd + 'data/VALUE/precip.txt')
     df = df.astype(float, errors='ignore')
     df['time'] = pd.to_datetime(df['YYYYMMDD'], format="%Y%m%d")
-    df = df.drop(columns = ['YYYYMMDD'])
-    
+    df = df.drop(columns=['YYYYMMDD'])
+
     # Resample
-    df2 = df.resample('M', on='time').mean()
-    time_arr = np.arange(1961 + 1./24., 2011, 1./12.)
-    df2.index = time_arr
-    df2 = df2.stack().reset_index()
-    df2 = df2.rename({"level_0":'time', "level_1": "station_id", 0: "tp"}, axis=1)
-    
+    if monthly == True:
+        df2 = df.resample('M', on='time').mean()
+        time_arr = np.arange(1961 + 1./24., 2011, 1./12.)
+        df2.index = time_arr
+        df2 = df2.stack().reset_index()
+    if monthly == False:
+        df2 = df
+        time_arr = np.arange(1961 + 1./24., 2011, 1./12.)
+        df2.index = time_arr
+        df2 = df2.stack().reset_index()
+    df2 = df2.rename(
+        {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
+
     # Import station data and combine
     df4 = pd.read_csv(pwd + 'data/VALUE/stations.txt')
     df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
     df7 = df2.join(df4.set_index('station_id'), on='station_id')
-    
+
     df7 = df7.rename({' name': 'name', ' longitude': 'lon', ' latitude': 'lat',
-                      ' altitude': 'alt',}, axis=1)
+                      ' altitude': 'alt', }, axis=1)
     df7 = df7.drop([' source'], axis=1)
-    df7.to_csv(pwd + 'data/VALUE/value_rsamp.csv')
+
+    if monthly == True:
+        df7.to_csv(pwd + 'data/VALUE/value_rsamp.csv')
+    if monthly == False:
+        df7.to_csv(pwd + 'data/VALUE/value_daily.csv')
 
 
 def all_gauge_data(minyear, maxyear, threshold=None):
@@ -66,5 +84,5 @@ def gauge_download(station, minyear, maxyear):
     """
     df = all_gauge_data(minyear, maxyear)
     station_df = df[df['name'] == station]
-    
+
     return station_df
