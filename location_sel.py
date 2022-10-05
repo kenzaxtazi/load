@@ -5,7 +5,7 @@ Functions to help dowload data given
 - Coordinates
 """
 import xarray as xr
-from pwd import pwd
+
 
 def select_basin(dataset, location):
     """ Interpolate dataset at given coordinates """
@@ -43,8 +43,8 @@ def basin_finder(loc):
     """
     basin_dic = {'indus': 'indus', 'uib': 'indus', 'sutlej': 'indus',
                  'beas': 'indus', 'beas_sutlej': 'indus', 'khyber': 'indus',
-                 'ngari': 'indus', 'gilgit': 'indus', 'france': 'france', 
-                 'korea':'korea', 'value':'value', 'europe':'value'}
+                 'ngari': 'indus', 'gilgit': 'indus', 'france': 'france',
+                 'korea': 'korea', 'value': 'value', 'europe': 'value'}
     if type(loc) is str:
         basin = basin_dic[loc]
         return basin

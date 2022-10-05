@@ -3,7 +3,7 @@ import urllib
 import numpy as np
 import datetime
 import pandas as pd
-from pwd import pwd
+
 
 def indice_downloader(all_var=False):
     """ Return indice Dataframe."""

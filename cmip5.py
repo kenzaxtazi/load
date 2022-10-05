@@ -1,7 +1,6 @@
 import xarray as xr
 import numpy as np
 import datetime
-from pwd import pwd
 
 
 def collect_CMIP5():
