@@ -19,7 +19,8 @@ def formatting_data(monthly=True):
     """
 
     # Import precipitation data
-    df = pd.read_csv('data/VALUE_ECA_86_v2/precip.txt')
+    df = pd.read_csv(
+        '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/precip.txt')
     df = df.astype(float, errors='ignore')
     df['time'] = pd.to_datetime(df['YYYYMMDD'], format="%Y%m%d")
     df = df.drop(columns=['YYYYMMDD'])
@@ -40,7 +41,7 @@ def formatting_data(monthly=True):
         {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
 
     # Import station data and combine
-    df4 = pd.read_csv('data/VALUE_ECA_86_v2/stations.txt',
+    df4 = pd.read_csv('/Users/kenzatazi/Documents/CDT/Code/ddata/VALUE_ECA_86_v2/stations.txt',
                       sep='\t', lineterminator='\r')
     df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
@@ -51,21 +52,32 @@ def formatting_data(monthly=True):
     df7 = df7.drop(['source'], axis=1)
 
     if monthly == True:
-        df7.to_csv('data/VALUE_ECA_86_v2/value_rsamp.csv')
+        df7.to_csv(
+            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_rsamp.csv')
     if monthly == False:
-        df7.to_csv('data/VALUE_ECA_86_v2/value_daily.csv')
+        df7.to_csv(
+            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_daily.csv')
 
 
-def all_gauge_data(minyear, maxyear, threshold=None):
+def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True) -> pd.DataFrame:
+    """    
+    Download data between specified dates for all active stations between two dates.
+    Can specify threshold for the the total number of active days during period:
+            e.g. for 10 year period -> 4018 - 365 = 3653
+
+    Args:
+        minyear (float): start year
+        maxyear (float): end year
+        threshold (_type_, optional): threshold value. Defaults to None.
+        monthly (bool, optional): whether to return monthly or daily data. Defaults to True.
+
+    Returns:
+        pd.DataFrame: VALUE data
     """
-    Download data between specified dates for all active stations between two
-    dates.
-    Can specify the treshold for the the total number of active days
-    during that period:
-    e.g. for 10 year period -> 4018 - 365 = 3653
-    """
-
-    filepath = 'data/VALUE/value_rsamp.csv'
+    if monthly == True:
+        filepath = '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_rsamp.csv'
+    if monthly == False:
+        filepath = '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_daily.csv'
     df = pd.read_csv(filepath)
     df = df.drop(['Unnamed: 0'], axis=1)
     mask = (df['time'] >= minyear) & (df['time'] < maxyear)

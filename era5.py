@@ -19,6 +19,9 @@ import load.location_sel as ls
 from load.noaa_indices import indice_downloader
 
 
+import sys
+sys.path.append('/Users/kenzatazi/Documents/CDT/Code')
+
 def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """
     Download data from ERA5 for a given location
@@ -72,24 +75,26 @@ def value_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.D
     """
     # Load data
     era5_da = download_data('value', xarray=True)
-    era5_ds = era5_da[['tp', 'z']]
+    era5_ds = era5_da[['tp']]
     tim_ds = era5_ds.sel(time=slice(minyear, maxyear))
 
     loc_list = []
     for station in stations:
         print(station)
-        station_name = ' ' + station.upper()
+        station_name = station.upper()
         # Interpolate at location
         all_station_dict = pd.read_csv(
-            '/data/hpcdata/users/kenzi22/data/VALUE/stations.txt', index_col=' name').T
+            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/stations.txt', index_col='name', sep='\t', lineterminator='\r').T
+        # print(all_station_dict)
         _, lon, lat, _elv, _ = all_station_dict[station_name]
         loc_ds = tim_ds.interp(
             coords={"lon": lon, "lat": lat}, method="nearest")
         loc_df = loc_ds.to_dataframe()
+        loc_df['z'] = np.ones(len(loc_df)) * _elv
         loc_list.append(loc_df)
 
-    ds = pd.concat(loc_list)
-    return ds
+    df = pd.concat(loc_list)
+    return df
 
 
 def download_data(location, xarray=False, ensemble=False, all_var=False):
@@ -109,7 +114,7 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
 
     basin = ls.basin_finder(location)
 
-    path = "data/ERA5/"
+    path = "/Users/kenzatazi/Documents/CDT/Code/data/ERA5/"
     now = datetime.datetime.now()
 
     if ensemble is True:
