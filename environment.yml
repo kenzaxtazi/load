@@ -1,0 +1,4 @@
+name: load
+channels:
+  - defaults
+prefix: /Users/kenzatazi/miniconda3/envs/load
