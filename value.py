@@ -4,6 +4,8 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 
+from load import data_dir
+
 """
 VALUE dataset
 
@@ -20,7 +22,7 @@ def formatting_data(monthly=True):
 
     # Import precipitation data
     df = pd.read_csv(
-        '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/precip.txt')
+        data_dir + 'VALUE_ECA_86_v2/precip.txt')
     df = df.astype(float, errors='ignore')
     df['time'] = pd.to_datetime(df['YYYYMMDD'], format="%Y%m%d")
     df = df.drop(columns=['YYYYMMDD'])
@@ -41,7 +43,7 @@ def formatting_data(monthly=True):
         {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
 
     # Import station data and combine
-    df4 = pd.read_csv('/Users/kenzatazi/Documents/CDT/Code/ddata/VALUE_ECA_86_v2/stations.txt',
+    df4 = pd.read_csv(data_dir + 'data/VALUE_ECA_86_v2/stations.txt',
                       sep='\t', lineterminator='\r')
     df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
@@ -53,10 +55,10 @@ def formatting_data(monthly=True):
 
     if monthly == True:
         df7.to_csv(
-            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_rsamp.csv')
+            data_dir + 'VALUE_ECA_86_v2/value_rsamp.csv')
     if monthly == False:
         df7.to_csv(
-            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_daily.csv')
+            data_dir + 'VALUE_ECA_86_v2/value_daily.csv')
 
 
 def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True) -> pd.DataFrame:
@@ -75,9 +77,9 @@ def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True)
         pd.DataFrame: VALUE data
     """
     if monthly == True:
-        filepath = '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_rsamp.csv'
+        filepath = data_dir + 'VALUE_ECA_86_v2/value_rsamp.csv'
     if monthly == False:
-        filepath = '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/value_daily.csv'
+        filepath = data_dir + 'VALUE_ECA_86_v2/value_daily.csv'
     df = pd.read_csv(filepath)
     df = df.drop(['Unnamed: 0'], axis=1)
     mask = (df['time'] >= minyear) & (df['time'] < maxyear)

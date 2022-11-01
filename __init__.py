@@ -9,3 +9,12 @@ In particular, they should be exported from the submodule:
 the middle of each month (float)
 - with 'tp' for the variable name for total precipitation in mm/day (float)
 """
+
+import sys
+
+data_dir = '/Users/kenzatazi/Documents/CDT/Code'
+code_dir = '/Users/kenzatazi/Documents/CDT/Code'
+ 
+sys.path.append(code_dir)
+
+

@@ -5,7 +5,7 @@ Functions to help dowload data given
 - Coordinates
 """
 import xarray as xr
-
+from load import data_dir
 
 def select_basin(dataset, location):
     """ Interpolate dataset at given coordinates """
@@ -19,13 +19,13 @@ def select_basin(dataset, location):
 
 def find_mask(location):
     """ Returns a mask filepath for given location """
-    mask_dic = {'ngari':  'data/Masks/Ngari_mask.nc',
-                'khyber':  'data/Masks/Khyber_mask.nc',
-                'gilgit':  'data/Masks/Gilgit_mask.nc',
-                'uib':  'data/Masks/ERA5_Upper_Indus_mask.nc',
-                'sutlej':  'data/Masks/Sutlej_mask.nc',
-                'beas':  'data/Masks/Beas_mask.nc',
-                'beas_sutlej':  'data/Masks/Beas_Sutlej_mask.nc',
+    mask_dic = {'ngari': data_dir + 'Masks/Ngari_mask.nc',
+                'khyber': data_dir + 'Masks/Khyber_mask.nc',
+                'gilgit': data_dir + 'Masks/Gilgit_mask.nc',
+                'uib':  data_dir + 'Masks/ERA5_Upper_Indus_mask.nc',
+                'sutlej':  data_dir + 'Masks/Sutlej_mask.nc',
+                'beas':  data_dir + 'Masks/Beas_mask.nc',
+                'beas_sutlej':  data_dir + 'Masks/Beas_Sutlej_mask.nc',
                 'korea': None,
                 'france': None,
                 'value': None}

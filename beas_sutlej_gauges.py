@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from math import floor, ceil
+from load import data_dir
 
 
 def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
@@ -21,7 +22,7 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     Returns:
         xr.DataArray: gauge precipitation values
     """
-    filepath = 'data/RawGauge_BeasSutlej_.xlsx'
+    filepath = data_dir + 'bs_gauges/RawGauge_BeasSutlej_.xlsx'
     daily_df = pd.read_excel(filepath, sheet_name=station)
     # daily_df.dropna(inplace=True)
 
@@ -29,14 +30,13 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     daily_df.set_index('Date', inplace=True)
     daily_df.index = pd.to_datetime(daily_df.index)
     clean_df = daily_df.dropna()
-    clean_df.tp = pd.to_numeric(clean_df.tp, errors='coerce')
+    clean_df.loc[:, 'tp'] = pd.to_numeric(clean_df.tp, errors='coerce')
     df_monthly = clean_df.tp.resample('M').sum()/30.436875
     df = df_monthly.reset_index()
-    df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
-    df['Date'] = df['Date'] + 1970
-
+    df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
+    df.loc[:, 'Date'] = df['Date'] + 1970
     all_station_dict = pd.read_csv(
-        'data/gauge_info.csv', index_col='station').T
+        data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
 
     # to xarray DataSet
     lat, lon, _elv = all_station_dict[station]
@@ -73,7 +73,7 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
         xr.DataArray: gauge precipitation values
     """
 
-    filepath = "data/qc_sushiwat_observations_MGM.xlsx"
+    filepath = data_dir + "bs_gauges/qc_sushiwat_observations_MGM.xlsx"
     daily_df = pd.read_excel(filepath)
 
     maxy_str = str(maxyear) + '-01-01'

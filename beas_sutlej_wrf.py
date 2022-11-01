@@ -6,7 +6,7 @@ import xarray as xr
 import numpy as np
 from scipy.interpolate import griddata
 
-import location_sel as ls
+import load.location_sel as ls
 
 
 def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
@@ -21,7 +21,7 @@ def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.Da
     Returns:
         xr.DataArray: WRF data
     """
-    wrf_da = xr.open_dataset('data/Bannister/Bannister_WRF_raw.nc')
+    wrf_da = xr.open_dataset(data_dir + 'Bannister/Bannister_WRF_raw.nc')
 
     if type(location) == str:
         loc_da = ls.select_basin(wrf_da, location)
@@ -49,7 +49,7 @@ def collect_BC_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr
     """
 
     bc_wrf_da = xr.open_dataset(
-        'data/Bannister/Bannister_WRF_corrected.nc')
+        data_dir + 'Bannister/Bannister_WRF_corrected.nc')
 
     if type(location) == str:
         loc_da = ls.select_basin(bc_wrf_da, location)
@@ -66,7 +66,7 @@ def collect_BC_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr
 def reformat_bannister_data():
     """ Project and save Bannister data on equal angle grid."""
 
-    wrf_da = xr.open_dataset('data/Bannister/Bannister_WRF.nc')
+    wrf_da = xr.open_dataset(data_dir + 'Bannister/Bannister_WRF.nc')
     XLAT = wrf_da.XLAT.values
     XLONG = wrf_da.XLONG.values
     m_precip = wrf_da.model_precipitation.values

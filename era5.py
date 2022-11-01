@@ -14,13 +14,10 @@ import xarray as xr
 import pandas as pd
 import cdsapi
 
-
 import load.location_sel as ls
 from load.noaa_indices import indice_downloader
+from load import data_dir
 
-
-import sys
-sys.path.append('/Users/kenzatazi/Documents/CDT/Code')
 
 def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """
@@ -35,10 +32,11 @@ def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.D
         xr.DataArray: ERA5 data
     """
 
-    era5_ds = download_data(location, xarray=True)
     if type(location) == str:
+        era5_ds = download_data(location, xarray=True)
         loc_ds = ls.select_basin(era5_ds, location)
     else:
+        era5_ds = download_data('indus', xarray=True)
         lat, lon = location
         loc_ds = era5_ds.interp(
             coords={"lon": lon, "lat": lat}, method="nearest")
@@ -80,11 +78,11 @@ def value_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.D
 
     loc_list = []
     for station in stations:
-        print(station)
+        # print(station)
         station_name = station.upper()
         # Interpolate at location
         all_station_dict = pd.read_csv(
-            '/Users/kenzatazi/Documents/CDT/Code/data/VALUE_ECA_86_v2/stations.txt', index_col='name', sep='\t', lineterminator='\r').T
+            data_dir + 'VALUE_ECA_86_v2/stations.txt', index_col='name', sep='\t', lineterminator='\r').T
         # print(all_station_dict)
         _, lon, lat, _elv, _ = all_station_dict[station_name]
         loc_ds = tim_ds.interp(
@@ -113,8 +111,9 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
     """
 
     basin = ls.basin_finder(location)
+    print(basin)
 
-    path = "/Users/kenzatazi/Documents/CDT/Code/data/ERA5/"
+    path = data_dir + "ERA5/"
     now = datetime.datetime.now()
 
     if ensemble is True:
@@ -123,15 +122,16 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
     if all_var is True:
         filename = "all_data" + "_" + basin + \
             "_" + now.strftime("%m-%Y") + ".csv"
-    elif ensemble is False:
+    if ensemble is False:
         filename = "combi_data" + "_" + basin + \
             "_" + now.strftime("%m-%Y") + ".csv"
+        # filename = 'combi_data_indus_02-2022.csv'
 
     filepath = os.path.expanduser(path + filename)
     print(filepath)
 
     if not os.path.exists(filepath):
-
+       # print(basin)
         # Orography, humidity, precipitation and indices
         cds_df = cds_downloader(basin, ensemble=ensemble, all_var=all_var)
         ind_df = indice_downloader(all_var=all_var)
@@ -394,7 +394,7 @@ def update_cds_monthly_data(
         ],
         area=[40, 70, 30, 85],
         pressure_level=None,
-        path="data/ERA5/",
+        path=data_dir + "ERA5/",
         qualifier=None):
     """
     Imports the most recent version of the given monthly ERA5 dataset as a
@@ -430,7 +430,7 @@ def update_cds_monthly_data(
             + "_"
             + qualifier
             + "_"
-            + "03-2022"  # now.strftime("%m-%Y")
+            + now.strftime("%m-%Y")
             + ".nc"
         )
 
@@ -438,42 +438,43 @@ def update_cds_monthly_data(
 
     # Only download if updated file is not present locally
     if not os.path.exists(filepath):
-        current_year = now.strftime("%Y")
+        current_year = '2021'  # now.strftime("%Y")
         years = np.arange(1979, int(current_year) + 1, 1).astype(str)
-        months = np.arange(1, 13, 1).astype(str)
+        months = ['01', '02', '03', '04', '05', '06',
+                  '07', '08', '09', '10', '11', '12']
 
         c = cdsapi.Client()
 
         if pressure_level is None:
+            print(product_type, variables, pressure_level,
+                  years.tolist(), months, area,)
             c.retrieve(
-                "reanalysis-era5-single-levels-monthly-means",
+                'reanalysis-era5-single-levels-monthly-means',
                 {
                     "format": "netcdf",
                     "product_type": product_type,
                     "variable": variables,
                     "year": years.tolist(),
                     "time": "00:00",
-                    "month": months.tolist(),
+                    "month": months,
                     "area": area,
                 },
                 filepath,
 
             )
         else:
-            c.retrieve(
-                "reanalysis-era5-single-levels-monthly-means",
-                {
-                    "format": "netcdf",
-                    "product_type": product_type,
-                    "variable": variables,
-                    "pressure_level": pressure_level,
-                    "year": years.tolist(),
-                    "time": "00:00",
-                    "month": months.tolist(),
-                    "area": area,
-                },
-                filepath,
-            )
+            c.retrieve("reanalysis-era5-single-levels-monthly-means",
+                       {
+                           "format": "netcdf",
+                           "product_type": product_type,
+                           "variable": variables,
+                           "pressure_level": pressure_level,
+                           "year": years.tolist(),
+                           "time": "00:00",
+                           "month": months,
+                           "area": area,
+                       },
+                       filepath,)
 
     return filepath
 

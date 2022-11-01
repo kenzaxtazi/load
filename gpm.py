@@ -24,7 +24,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-import location_sel as ls
+import load.location_sel as ls
 
 # trmm_filepath =  'data/GPM/subset_GPM_3PR_06_20210611_090054.txt'
 # gpm_filepath =  'data/GPM'
@@ -32,7 +32,7 @@ import location_sel as ls
 
 def collect_GPM(location, minyear, maxyear):
     """ Load GPM data """
-    gpm_ds = xr.open_dataset("data/GPM/gpm_pr_unc_2000-2010.nc")
+    gpm_ds = xr.open_dataset(data_dir + "GPM/gpm_pr_unc_2000-2010.nc")
 
     if type(location) == str:
         loc_ds = ls.select_basin(gpm_ds, location)

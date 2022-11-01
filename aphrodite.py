@@ -10,8 +10,8 @@ import numpy as np
 import xarray as xr
 from tqdm import tqdm
 
-import location_sel as ls
-
+import load.location_sel as ls
+from load import data_dir
 
 def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """
@@ -26,8 +26,7 @@ def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.
         xr.DataArray: APHRODITE data
     """
 
-    aphro_da = xr.open_dataset(
-        "data/APHRODITE/aphrodite_indus_1951_2016.nc")
+    aphro_da = xr.open_dataset(data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
 
     if type(location) == str:
         loc_da = ls.select_basin(aphro_da, location)
@@ -48,8 +47,8 @@ def merge_og_files():
     extent = ls.basin_extent('indus')
 
     print('1951-2007')
-    for f in tqdm(glob.glob(
-            'data/APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
+    for f in tqdm(glob.glob(data_dir +
+            'APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
         da = xr.open_dataset(f)
         da = da.rename({'latitude': 'lat', 'longitude': 'lon', 'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
@@ -61,7 +60,7 @@ def merge_og_files():
 
     print('2007-2016')
     for f in tqdm(
-            glob.glob('data/APHRODITE/APHRO_MA_025deg_V1101_EXR1/*.nc')):
+            glob.glob(data_dir + 'APHRODITE/APHRO_MA_025deg_V1101_EXR1/*.nc')):
         da = xr.open_dataset(f)
         da = da.rename({'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
@@ -79,4 +78,4 @@ def merge_og_files():
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
     da_merged['time'] = time_arr
 
-    da_merged.to_netcdf("data/APHRODITE/aphrodite_indus_1951_2016.nc")
+    da_merged.to_netcdf(data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
