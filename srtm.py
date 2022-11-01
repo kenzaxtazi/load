@@ -13,6 +13,8 @@ from load import data_dir
 #import richdem as rd
 
 
+#TODO: Fix richdem import
+''' 
 def generate_slope_aspect():
     """Generate slope and aspect from DEM."""
     dem_ds = xr.open_dataset(
@@ -36,7 +38,7 @@ def generate_slope_aspect():
     streamlined_dem_ds = dem_ds[['elevation', 'slope', 'aspect']]
     streamlined_dem_ds.to_netcdf(
         data_dir + 'Elevation/SRTM_data.nc')
-
+'''
 
 def find_slope(station):
     """Return slope for given station."""
