@@ -43,7 +43,7 @@ def formatting_data(monthly=True):
         {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
 
     # Import station data and combine
-    df4 = pd.read_csv(data_dir + 'data/VALUE_ECA_86_v2/stations.txt',
+    df4 = pd.read_csv(data_dir + 'VALUE_ECA_86_v2/stations.txt',
                       sep='\t', lineterminator='\r')
     df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
