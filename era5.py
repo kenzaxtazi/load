@@ -13,6 +13,8 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import cdsapi
+import metpy.calc
+from metpy.units import units
 
 import load.location_sel as ls
 from load.noaa_indices import indice_downloader
@@ -157,6 +159,10 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
         # Pre pre-processing and save
         df_clean = df_expver1.dropna()  # .drop("expver", axis=1)
         df_clean['time'] = standardised_time(df_clean)
+        u = units.meter * units.meter / units.second / units.second
+        geopot_u = df_clean['z'].values * u
+        z_u = metpy.calc.geopotential_to_height(geopot_u)
+        df_clean['z'] = z_u
         df_clean["tp"] *= 1000  # to mm/day
         df_clean = df_clean.rename(
             columns={'latitude': 'lat', 'longitude': 'lon'})
