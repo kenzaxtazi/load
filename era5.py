@@ -51,14 +51,45 @@ def gauge_download(station, minyear, maxyear):
     """Download and format ERA5 data for a given station name in the Beas and Sutlej basins."""
     # Load data
     era5_da = download_data('beas_sutlej', xarray=True)
-    era5_ds = era5_da[['tp']]
+    era5_ds = era5_da[['tp', 'z']]
     # Interpolate at location
     all_station_dict = pd.read_csv(
-        '/data/hpcdata/users/kenzi22/data/gauge_info.csv', index_col='station').T
+        data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
     lat, lon, _elv = all_station_dict[station]
     loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
     tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
     return tim_ds
+
+
+def bs_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.DataArray:
+    """
+    Download and format ERA5 data for a given station name in the BS dataset.
+
+    Args:
+        stations (list): station names (with first letter capitalised)
+        minyear (float): start date in years
+        maxyear (float): end date in years
+
+    Returns:
+        xr.DataArray: ERA5 precipitation values at BS stations
+    """
+    # Load data
+    era5_da = download_data('indus', xarray=True)
+    era5_ds = era5_da[['tp', 'z']]
+    tim_ds = era5_ds.sel(time=slice(minyear, maxyear))
+
+    loc_list = []
+    for station in stations:
+        # print(station)
+        # Interpolate at location
+        all_station_dict = pd.read_csv(data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
+        lat, lon, _elv = all_station_dict[station]
+        loc_ds = tim_ds.interp(
+            coords={"lon": lon, "lat": lat}, method="nearest")
+        loc_df = loc_ds.to_dataframe()
+        loc_list.append(loc_df)
+    df = pd.concat(loc_list)
+    return df
 
 
 def value_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.DataArray:
