@@ -43,8 +43,9 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     df_ind = df.set_index('Date')
     da = df_ind.to_xarray()
     da = da.assign_attrs(plot_legend="Gauge data")
-    da = da.assign_coords({'lon': lon})
-    da = da.assign_coords({'lat': lat})
+    da = da.assign_coords(lon = ('lon', [lon]))
+    da = da.assign_coords(lat = ('lat', [lat]))
+    da = da.assign_coords(lon = ('z', [elv]))
     da = da.rename({'Date': 'time'})
 
     # Standardise time resolution
