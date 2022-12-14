@@ -30,7 +30,9 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     daily_df.set_index('Date', inplace=True)
     daily_df.index = pd.to_datetime(daily_df.index)
     clean_df = daily_df.dropna()
-    clean_df.loc[:, 'tp'] = pd.to_numeric(clean_df.loc[:, 'tp'], errors='coerce')
+    with pd.option_context('mode.chained_assignment', None):
+        clean_df.loc[:, 'tp'] = pd.to_numeric(
+            clean_df.loc[:, 'tp'], errors='coerce')
     df_monthly = clean_df.tp.resample('M').sum()/30.436875
     df = df_monthly.reset_index()
     df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
@@ -44,10 +46,10 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     df_ind = df.set_index('Date')
     da = df_ind.to_xarray()
     da = da.assign_attrs(plot_legend="Gauge data")
-    da = da.assign_coords(lon = ('lon', [lon]))
-    da = da.assign_coords(lat = ('lat', [lat]))
-    da = da.assign_coords(z = ('z', [elv]))
-    da = da.assign_coords(slor = ('slor', [slope]))
+    da = da.assign_coords(lon=('lon', [lon]))
+    da = da.assign_coords(lat=('lat', [lat]))
+    da = da.assign_coords(z=('z', [elv]))
+    da = da.assign_coords(slor=('slor', [slope]))
     da = da.rename({'Date': 'time'})
 
     # Standardise time resolution
