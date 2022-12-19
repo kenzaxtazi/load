@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from math import floor, ceil
-from load import data_dir
+from load import data_dir, srtm
 
 
 def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
@@ -30,7 +30,9 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     daily_df.set_index('Date', inplace=True)
     daily_df.index = pd.to_datetime(daily_df.index)
     clean_df = daily_df.dropna()
-    clean_df.loc[:, 'tp'] = pd.to_numeric(clean_df.tp, errors='coerce')
+    with pd.option_context('mode.chained_assignment', None):
+        clean_df.loc[:, 'tp'] = pd.to_numeric(
+            clean_df.loc[:, 'tp'], errors='coerce')
     df_monthly = clean_df.tp.resample('M').sum()/30.436875
     df = df_monthly.reset_index()
     df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
@@ -39,13 +41,15 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
         data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
 
     # to xarray DataSet
-    lat, lon, _elv = all_station_dict[station]
+    lat, lon, elv = all_station_dict[station]
+    #slope = srtm.find_slope(station).slope.values
     df_ind = df.set_index('Date')
     da = df_ind.to_xarray()
     da = da.assign_attrs(plot_legend="Gauge data")
-    da = da.assign_coords(lon = ('lon', [lon]))
-    da = da.assign_coords(lat = ('lat', [lat]))
-    da = da.assign_coords(lon = ('z', [elv]))
+    da = da.assign_coords({'lon': lon})
+    da = da.assign_coords({'lat': lat})
+    da = da.assign_coords(z=('z', [elv]))
+    #da = da.assign_coords(slor=('slor', [slope]))
     da = da.rename({'Date': 'time'})
 
     # Standardise time resolution

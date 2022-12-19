@@ -7,6 +7,7 @@ Functions to help dowload data given
 import xarray as xr
 from load import data_dir
 
+
 def select_basin(dataset, location):
     """ Interpolate dataset at given coordinates """
     mask_filepath = find_mask(location)
@@ -28,7 +29,8 @@ def find_mask(location):
                 'beas_sutlej':  data_dir + 'Masks/Beas_Sutlej_mask.nc',
                 'korea': None,
                 'france': None,
-                'value': None}
+                'value': None,
+                'indus': None}
     mask_filepath = mask_dic[location]
     return mask_filepath
 
