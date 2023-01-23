@@ -7,7 +7,7 @@ import numpy as np
 from scipy.interpolate import griddata
 
 import load.location_sel as ls
-
+from load import data_dir
 
 def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """

@@ -1,7 +1,7 @@
 import xarray as xr
 import numpy as np
 import datetime
-
+from load import data_dir
 
 def collect_CMIP5():
     """Download data from CMIP5."""

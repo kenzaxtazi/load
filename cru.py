@@ -8,6 +8,7 @@ import numpy as np
 
 
 import load.location_sel as ls
+from load import data_dir
 
 
 def collect_CRU(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
