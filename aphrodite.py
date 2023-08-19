@@ -2,7 +2,7 @@
 The APHRODITE datasets over Monsoon Asia:
 - V1101 from 1951 to 2007,
 - V1101_EXR from 2007-2016.
-Precipiation is in mm/day.
+Native precipiation values are in mm/day.
 """
 
 import glob
@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 import load.location_sel as ls
 from load import data_dir
+
 
 def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """
@@ -26,7 +27,8 @@ def collect_APHRO(location: str or tuple, minyear: float, maxyear: float) -> xr.
         xr.DataArray: APHRODITE data
     """
 
-    aphro_da = xr.open_dataset(data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
+    aphro_da = xr.open_dataset(
+        data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
 
     if type(location) == str:
         loc_da = ls.select_basin(aphro_da, location)
@@ -48,7 +50,7 @@ def merge_og_files():
 
     print('1951-2007')
     for f in tqdm(glob.glob(data_dir +
-            'APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
+                            'APHRODITE/APHRO_MA_025deg_V1101.1951-2007.gz/*.nc')):
         da = xr.open_dataset(f)
         da = da.rename({'latitude': 'lat', 'longitude': 'lon', 'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
