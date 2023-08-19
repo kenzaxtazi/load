@@ -33,7 +33,8 @@ from load import data_dir
 
 def collect_GPM(location, minyear, maxyear):
     """ Load GPM data """
-    gpm_ds = xr.open_dataset(data_dir + "GPM/gpm_pr_unc_2000-2010.nc")
+    gpm_ds = xr.open_dataset(data_dir + "GPM/gpm_combi_1997-2015.nc")
+    # "GPM/gpm_pr_unc_2000-2010.nc")
 
     if type(location) == str:
         loc_ds = ls.select_basin(gpm_ds, location)
@@ -53,7 +54,8 @@ def hdf5_download(url_filepath):
     with open(url_filepath) as f:
         for line in tqdm(f):
             url = line[:-1]
-            path = 'data/GPM/' + url.split('/', -1)[-1]
+            path = data_dir + 'GPM/' + \
+                url.split('/', -1)[-1]
             r = requests.get(url, allow_redirects=True)
             with open(path, 'wb') as file:
                 file.write(r.content)
