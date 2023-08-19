@@ -2,3 +2,9 @@ __pycache__/*
 *checkpoint.py
 .vscode
 .gitignore
+
+figures/load logo.afdesign
+.gitignore
+figures/load logo.png
+figures/.DS_Store
+.DS_Store
