@@ -1,21 +1,26 @@
-# Tests for 'collect' functions
+# Tests
 
 from load.aphrodite import collect_APHRO
 import xarray as xr
 import numpy as np
 import pandas as pd
 
+# test inputs
 minyear = 1970
 maxyear = 1971
 location = 'indus'
 
+# TODO generalise tests for all dataset functions
+
 
 def test_collect_is_dataset():
+    """ Check if dataset is a valid format"""
     dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
     assert isinstance(dataset, xr.DataSet), "dataset is not an xarray Dataset"
 
 
 def test_collect_has_lon():
+    """ Check if dataset has 'lon' variable."""
     dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
     headers = list(dataset.dims)
     if 'lon' not in headers:
@@ -26,6 +31,7 @@ def test_collect_has_lon():
 
 
 def test_collect_has_lat():
+    """ Check if dataset has 'lat' variable."""
     dataset = collect_APHRO(
         location='indus', minyear=minyear, maxyear=maxyear)
     headers = list(dataset.dims)
@@ -37,6 +43,7 @@ def test_collect_has_lat():
 
 
 def test_collect_has_time():
+    """Check if dataset has 'time' variable."""
     dataset = collect_APHRO(
         location='indus', minyear=minyear, maxyear=maxyear)
     headers = list(dataset.dims)
@@ -48,6 +55,7 @@ def test_collect_has_time():
 
 
 def test_collect_is_datetime():
+    """Check if 'time' is datetime64."""
 
     dataset = collect_APHRO(
         location='indus', minyear=minyear, maxyear=maxyear)
@@ -57,4 +65,5 @@ def test_collect_is_datetime():
 
     dataset_df = dataset.time.to_dataframe()
     dataset_df.set_index('time', inplace=True)
-    assert all(dataset_df.index.is_month_start == True), "time is not month start"
+    assert all(dataset_df.index.is_month_start ==
+               True), "time is not month start"
