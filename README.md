@@ -12,7 +12,7 @@ Datasets should all have the same format so they can be easily used together.
 
 In particular, they should be exported from the submodule:
 
-- as a xarray DataArray or saved as netcdf file format OR as a pandas DataFrame saved as csv file format
+- as a xarray Dataset
 - with 'lon' as the longitude variable name in °E (float)
 - with 'lat' as the latitude variable name in °N (float)
 - with 'time' for time variable name as datetimes. For datasets with monthly resolution, the date should be set to the begining of the month
