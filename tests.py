@@ -19,15 +19,26 @@ def test_collect_is_dataset():
     assert isinstance(dataset, xr.DataSet), "dataset is not an xarray Dataset"
 
 
+def test_collect_has_tp():
+    """ Check if dataset has 'tp' variable."""
+    dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
+    headers = list(dataset.dims)
+    if 'tp' not in headers:
+        if 'precipitation' in headers:
+            assert 'tp' in headers, "change 'precipiation' dim 'tp'"
+        else:
+            assert 'tp' in headers, "no 'tp' dim"
+
+
 def test_collect_has_lon():
     """ Check if dataset has 'lon' variable."""
     dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
     headers = list(dataset.dims)
     if 'lon' not in headers:
         if 'longitude' in headers:
-            assert 'lon' in headers, "change 'longitude' header to 'lon'"
+            assert 'lon' in headers, "change 'longitude' dim 'lon'"
         else:
-            assert 'lon' in headers, "no 'lon'"
+            assert 'lon' in headers, "no 'lon' dim"
 
 
 def test_collect_has_lat():
@@ -37,9 +48,9 @@ def test_collect_has_lat():
     headers = list(dataset.dims)
     if 'lat' not in headers:
         if 'latitude' in headers:
-            assert 'lat' in headers, "change 'latitude' header to 'lat'"
+            assert 'lat' in headers, "change 'latitude' dim 'lat'"
         else:
-            assert 'lon' in headers, "no 'lon'"
+            assert 'lon' in headers, "no 'lon' dim"
 
 
 def test_collect_has_time():
@@ -49,9 +60,9 @@ def test_collect_has_time():
     headers = list(dataset.dims)
     if 'time' not in headers:
         if 'date' in headers:
-            assert 'time' in headers, "change 'date' header to 'time'"
+            assert 'time' in headers, "change 'date' dim 'time'"
         else:
-            assert 'time' in headers, "no 'time'"
+            assert 'time' in headers, "no 'time dim'"
 
 
 def test_collect_is_datetime():
