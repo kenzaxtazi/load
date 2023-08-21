@@ -22,4 +22,4 @@ In particular, they should be exported from the submodule:
 
 After cloning this repository and navigating to its install directory, the dependencies can be installed with anaconda: `conda env create -f environment.yml` This will create a new anaconda environment 'load'. After activating the environment: `conda activate load`.
 
-Add your data and code directories to the `__init__.py' file.
+Add your data and code directories to the `__init__.py` file.
