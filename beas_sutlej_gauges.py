@@ -6,8 +6,8 @@ from xmlrpc.client import boolean
 import numpy as np
 import pandas as pd
 import xarray as xr
-from math import floor, ceil
-from load import data_dir, srtm
+#from math import floor, ceil
+from load import data_dir
 
 
 def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
@@ -33,10 +33,10 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     with pd.option_context('mode.chained_assignment', None):
         clean_df.loc[:, 'tp'] = pd.to_numeric(
             clean_df.loc[:, 'tp'], errors='coerce')
-    df_monthly = clean_df.tp.resample('M').sum()/30.436875
-    df = df_monthly.reset_index()
-    df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
-    df.loc[:, 'Date'] = df['Date'] + 1970
+    df = clean_df.tp.resample('MS').mean()
+    #df = df.reset_index()
+    #df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
+    #df.loc[:, 'Date'] = df['Date'] + 1970
     all_station_dict = pd.read_csv(
         data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
 
@@ -52,13 +52,14 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
     #da = da.assign_coords(slor=('slor', [slope]))
     da = da.rename({'Date': 'time'})
 
+    '''
     # Standardise time resolution
     raw_maxyear = float(da.time.max())
     raw_minyear = float(da.time.min())
     time_arr = np.arange(floor(raw_minyear*12-1)/12 + 1. /
                          24., ceil(raw_maxyear*12-1)/12, 1./12.)
     da['time'] = time_arr
-
+    '''
     tims_da = da.sel(time=slice(minyear, maxyear))
     return tims_da
 
@@ -94,9 +95,9 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
         df_masked = df_masked.dropna(axis=1, thresh=threshold)
 
     df_masked.index = pd.to_datetime(df_masked.index)
-    df_monthly = df_masked.resample('M').sum()/30.436875
+    df_monthly = df_masked.resample('MS').mean()
     df = df_monthly.reset_index()
-    df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9 + 1970
+    #df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9 + 1970
 
     df_ind = df.set_index('Date')
     da = df_ind.to_xarray()
@@ -104,6 +105,6 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
     da = da.rename({'Date': 'time'})
 
     # Standardise time resolution
-    time_arr = np.arange(round(minyear) + 1./24., maxyear, 1./12.)
-    da['time'] = time_arr
+    # time_arr = np.arange(round(minyear) + 1./24., maxyear, 1./12.)
+    # da['time'] = time_arr
     return da

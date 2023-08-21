@@ -55,9 +55,9 @@ def merge_og_files():
         da = da.rename({'latitude': 'lat', 'longitude': 'lon', 'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
                                lat=slice(extent[2], extent[0]))
-        da_resampled = (da_cropped.resample(time="M")).mean()
-        da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
-        da_resampled['time'] = da_resampled['time'] + 1970
+        da_resampled = (da_cropped.resample(time="MS")).mean()
+        #da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
+        #da_resampled['time'] = da_resampled['time'] + 1970
         da_list.append(da_resampled)
 
     print('2007-2016')
@@ -67,17 +67,18 @@ def merge_og_files():
         da = da.rename({'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
                                lat=slice(extent[2], extent[0]))
-        da_resampled = (da_cropped.resample(time="M")).mean()
-        da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
-        da_resampled['time'] = da_resampled['time'] + 1970
+        da_resampled = (da_cropped.resample(time="MS")).mean()
+        #da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
+        #da_resampled['time'] = da_resampled['time'] + 1970
         da_list.append(da_resampled)
 
     da_merged = xr.merge(da_list)
 
+    '''
     # Standardise time resolution
     maxyear = float(da_merged.time.max())
     minyear = float(da_merged.time.min())
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
     da_merged['time'] = time_arr
-
+    '''
     da_merged.to_netcdf(data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
