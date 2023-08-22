@@ -1,5 +1,5 @@
 """
-SRTM dataset is a 90m DEM computed from satellite.
+GMTED2010 dataset is a 0.0625° DEM computed from satellite data.
 
 Slope and aspect are calculated using:
     Horn, B.K.P., 1981. Hill shading and the reflectance map. Proceedings of
@@ -13,7 +13,7 @@ from load import data_dir
 #import richdem as rd
 
 
-#TODO: Fix richdem import
+# TODO: Fix richdem import
 ''' 
 def generate_slope_aspect():
     """Generate slope and aspect from DEM."""
@@ -39,6 +39,7 @@ def generate_slope_aspect():
     streamlined_dem_ds.to_netcdf(
         data_dir + 'Elevation/SRTM_data.nc')
 '''
+
 
 def find_slope(station):
     """Return slope for given station."""
