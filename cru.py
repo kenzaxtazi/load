@@ -44,24 +44,31 @@ def download():
     da = xr.open_dataset(data_dir + "CRU/cru_ts4.04.1901.2019.pre.dat.nc")
     da_cropped = da.sel(
         lon=slice(extent[1], extent[3]), lat=slice(extent[2], extent[0]))
-    da_cropped['pre'] /= 30.437  # TODO apply proper function to get mm/day
-    da_cropped['time'] = standardised_time(da_cropped)
+    da_cropped['time'] = da_cropped['time'].astype("datetime64[M]")
+    days_in_month = da_cropped.time.dt.days_in_month.values
+    days_in_month_tiled = np.tile(
+        days_in_month[:, np.newaxis, np.newaxis], (1, 30, 40))
+    da_cropped['pre'] = da_cropped['pre'] / days_in_month_tiled  # mm/day
+    #da_cropped['time'] = standardised_time(da_cropped)
 
+    '''
     # Standardise time resolution
     maxyear = float(da_cropped.time.max())
     minyear = float(da_cropped.time.min())
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
-    da_cropped['time'] = time_arr
+    '''
 
     da = da_cropped.rename_vars({'pre': 'tp'})
     x = np.arange(70, 85, 0.25)
     y = np.arange(25, 35, 0.25)
     interp_da = da.interp(lon=x, lat=y, method="nearest")
-    interp_da.to_netcdf("data/CRU/interpolated_cru_1901-2019.nc")
+    interp_da.to_netcdf(data_dir + "CRU/interpolated_cru_1901-2019.nc")
 
 
 def standardised_time(dataset: xr.DataArray) -> np.array:
     """
+    FOR ARCHIVE ONLY - DO NOT USE
+
     Return array of standardised times to plot.
 
     Args:

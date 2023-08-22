@@ -55,7 +55,7 @@ def merge_og_files():
         da = da.rename({'latitude': 'lat', 'longitude': 'lon', 'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
                                lat=slice(extent[2], extent[0]))
-        da_resampled = (da_cropped.resample(time="MS")).mean()
+        da_resampled = da_cropped.astype("datetime64[M]")
         #da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
         #da_resampled['time'] = da_resampled['time'] + 1970
         da_list.append(da_resampled)
@@ -67,7 +67,7 @@ def merge_og_files():
         da = da.rename({'precip': 'tp'})
         da_cropped = da.tp.sel(lon=slice(extent[1], extent[3]),
                                lat=slice(extent[2], extent[0]))
-        da_resampled = (da_cropped.resample(time="MS")).mean()
+        da_resampled = da_cropped.astype("datetime64[M]")
         #da_resampled['time'] = da_resampled.time.astype(float)/365/24/60/60/1e9
         #da_resampled['time'] = da_resampled['time'] + 1970
         da_list.append(da_resampled)

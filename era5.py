@@ -47,8 +47,8 @@ def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.D
     return ds
 
 
-def gauge_download(station, minyear, maxyear):
-    """Download and format ERA5 data for a given station name in the Beas and Sutlej basins."""
+def gauge_download(station: str, minyear: float, maxyear: float) -> xr.Dataset:
+    """ Download and format ERA5 data for a given station name in the Beas and Sutlej basins."""
     # Load data
     era5_da = download_data('beas_sutlej', xarray=True)
     era5_ds = era5_da[['tp', 'z']]
@@ -61,18 +61,20 @@ def gauge_download(station, minyear, maxyear):
     return tim_ds
 
 
-def gauges_download(stations, minyear, maxyear):
-    """Download and format ERA5 data for a given station list in the Beas and Sutlej basins."""
+def gauges_download(stations: list, minyear: float, maxyear: float) -> pd.DataFrame:
+    """ Download and format ERA5 data for a given station list in the Beas and Sutlej basins."""
     # Load data
     era5_da = download_data('beas_sutlej', xarray=True)
     era5_ds = era5_da[['tp']]
     # Interpolate at location
-    all_station_dict = pd.read_csv(data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
-    
+    all_station_dict = pd.read_csv(
+        data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
+
     loc_list = []
     for station in stations:
         lat, lon, _elv = all_station_dict[station]
-        loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
+        loc_ds = era5_ds.interp(
+            coords={"lon": lon, "lat": lat}, method="nearest")
         tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
         loc_df = tim_ds.to_dataframe().reset_index().dropna()
         loc_df['z'] = np.ones(len(loc_df)) * _elv
@@ -148,7 +150,6 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
     if ensemble is False:
         filename = "combi_data" + "_" + basin + \
             "_" + now.strftime("%m-%Y") + ".csv"
-        # filename = 'combi_data_indus_02-2022.csv'
 
     filepath = os.path.expanduser(path + filename)
     print(filepath)
@@ -179,7 +180,8 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
 
         # Pre pre-processing and save
         df_clean = df_expver1.dropna()  # .drop("expver", axis=1)
-        df_clean['time'] = standardised_time(df_clean)
+        dates = pd.to_datetime(df_clean.time)
+        df_clean['time'] = dates.astype("datetime64[M]")
         u = units.meter * units.meter / units.second / units.second
         geopot_u = df_clean['z'].values * u
         z_u = metpy.calc.geopotential_to_height(geopot_u)
@@ -187,7 +189,7 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
         df_clean["tp"] *= 1000  # to mm/day
         df_clean = df_clean.rename(
             columns={'latitude': 'lat', 'longitude': 'lon'})
-        df_clean = df_clean.astype("float64")
+        #df_clean = df_clean.astype("float64")
         df_clean.to_csv(filepath)
 
         if xarray is True:
@@ -198,12 +200,14 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
             else:
                 df_multi = df_clean.set_index(["time", "lon", "lat"])
             ds = df_multi.to_xarray()
+            '''
             # Standardise time resolution
             maxyear = float(ds.time.max())
             minyear = float(ds.time.min())
             time_arr = np.arange(round(minyear) + 1./24., maxyear+0.05, 1./12.)
             print(ds)
             ds['time'] = time_arr
+            '''
             return ds
         else:
             return df_clean
@@ -220,12 +224,15 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
             else:
                 df_multi = df_clean.set_index(["time", "lon", "lat"])
             ds = df_multi.to_xarray()
+
+            '''
             # Standardise time resolution
             maxyear = float(ds.time.max())
             minyear = float(ds.time.min())
             time_arr = np.arange(round(minyear) + 1./24.,
                                  maxyear + 0.05, 1./12.)
             ds['time'] = time_arr
+            '''
             return ds
         else:
             return df_clean
@@ -397,7 +404,12 @@ def cds_downloader(basin, ensemble=False, all_var=False):
 
 
 def standardised_time(dataset):
-    """ Returns array of standardised times to plot """
+    """ 
+    FOR ARCHIVE ONLY - NOT IN USE
+
+    Returns array of standardised times to plot.
+
+    """
     try:
         utime = dataset.time.values.astype(int)/(1e9 * 60 * 60 * 24 * 365)
     except Exception:
@@ -465,7 +477,7 @@ def update_cds_monthly_data(
 
     # Only download if updated file is not present locally
     if not os.path.exists(filepath):
-        current_year = '2021'  # now.strftime("%Y")
+        current_year = now.strftime("%Y")
         years = np.arange(1979, int(current_year) + 1, 1).astype(str)
         months = ['01', '02', '03', '04', '05', '06',
                   '07', '08', '09', '10', '11', '12']

@@ -5,9 +5,11 @@ Raw and bias corrected (Bannister et al.) WRF output.
 import xarray as xr
 import numpy as np
 from scipy.interpolate import griddata
+from tqdm import tqdm
 
 import load.location_sel as ls
 from load import data_dir
+
 
 def collect_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
     """
@@ -64,7 +66,7 @@ def collect_BC_WRF(location: str or tuple, minyear: float, maxyear: float) -> xr
 
 
 def reformat_bannister_data():
-    """ Project and save Bannister data on equal angle grid."""
+    """ Project and save Bannister data on equal angle grid. """
 
     wrf_da = xr.open_dataset(data_dir + 'Bannister/Bannister_WRF.nc')
     XLAT = wrf_da.XLAT.values
@@ -77,30 +79,31 @@ def reformat_bannister_data():
                     bias_corr_precip=(["time", "x", "y"], bias_corr_precip)),
                     coords=dict(lon=(["x", "y"], XLONG),
                     lat=(["x", "y"], XLAT), time=time))
-    da2 = (da.resample(time="M")).mean()
-    da2['time'] = da2.time.astype(float)/365/24/60/60/1e9 + 1970
+    da2 = da.resample(time="MS").mean()
+    #da2['time'] = da2.time.astype(float)/365/24/60/60/1e9 + 1970
 
+    '''
     # Standardise time resolution
     maxyear = da2.time.max()
     minyear = da2.time.min()
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
     da2['time'] = time_arr
-
+    '''
     # Raw WRF data
     wrf_da = da2.drop('bias_corr_precip')
     wrf_da = wrf_da.rename({'m_precip': 'tp'})
     wrf_da = interp(wrf_da)
-    wrf_da.to_netcdf('data/Bannister/Bannister_WRF_raw.nc')
+    wrf_da.to_netcdf(data_dir + '/Bannister/Bannister_WRF_raw.nc')
 
     # Bias corrected WRF data
     bc_da = da2.drop('m_precip')
     bc_da = bc_da.rename({'bias_corr_precip': 'tp'})
     bc_da = interp(bc_da)
-    bc_da.to_netcdf('data/Bannister/Bannister_WRF_corrected.nc')
+    bc_da.to_netcdf(data_dir + 'Bannister/Bannister_WRF_corrected.nc')
 
 
 def interp(da):
-    """ Interpolate to match dsta to ERA5 grid."""
+    """ Interpolate to match data to ERA5 grid."""
 
     # Generate a regular grid to interpolate the data
     x = np.arange(70, 85, 0.25)
@@ -111,13 +114,13 @@ def interp(da):
     lats = da.lat.values.flatten()
     lons = da.lon.values.flatten()
     times = da.time.values
-    tp = da.tp.values.reshape(396, -1)
+    tp = da.tp.values.reshape(len(times), -1)
     points = np.stack((lats, lons), axis=-1)
 
-    # Interpolate using nearest neigbours
+    # Linear interpolation
     grid_list = []
     for values in tp:
-        grid_z0 = griddata(points, values, (grid_x, grid_y), method='nearest')
+        grid_z0 = griddata(points, values, (grid_x, grid_y), method='linear')
         grid_list.append(grid_z0)
     interp_grid = np.array(grid_list)
 
@@ -127,3 +130,21 @@ def interp(da):
         coords=dict(lon=(["lon"], x), lat=(["lat"], y),
                     time=(['time'], times)))
     return new_da
+
+
+def test_interp_grid(test_da):
+    """ Test that the interpolation grid is consistent. """
+
+    indices_to_check = np.random.randint(0, 100, 10)
+
+    lats = test_da.lat.values.flatten()
+    lons = test_da.lon.values.flatten()
+    times = test_da.time.values
+    tp = test_da.tp.values.reshape(len(times), -1)
+    points = np.stack((lats, lons), axis=-1)
+    assert len(points) == tp.shape[1]
+
+    for i in tqdm(indices_to_check):
+        assert times[i] == test_da.isel(time=i).time.values
+        assert all(tp[i] == test_da.sel(time=times[i]).tp.values.flatten())
+    print('Done!')
