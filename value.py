@@ -29,16 +29,10 @@ def formatting_data(monthly=True):
 
     # Resample
     if monthly == True:
-        df2 = df.resample('M', on='time').mean()
-        time_arr = np.arange(1961 + 1./24., 2011, 1./12.)
-        df2.index = time_arr
-        df2 = df2.stack().reset_index()
-    if monthly == False:
-        df2 = df.resample('D', on='time').mean()
-        time_arr = year_into_days(1961, 2011)
-        df2.index = time_arr
-        df2 = df2.stack().reset_index()
-        df2 = df2[:-1]
+        df = df.resample('MS', on='time').mean()
+
+    # Rename columns
+    df2 = df.stack().reset_index()
     df2 = df2.rename(
         {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
 
@@ -49,8 +43,8 @@ def formatting_data(monthly=True):
     df4['station_id'] = df4['station_id'].astype(int)
     df7 = df2.join(df4.set_index('station_id'), on='station_id')
 
-    df7 = df7.rename({' name': 'name', ' longitude': 'lon', ' latitude': 'lat',
-                      ' altitude': 'alt', }, axis=1)
+    df7 = df7.rename({'longitude': 'lon', 'latitude': 'lat',
+                     'altitude': 'z', }, axis=1)
     df7 = df7.drop(['source'], axis=1)
 
     if monthly == True:
@@ -82,10 +76,9 @@ def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True)
         filepath = data_dir + 'VALUE_ECA_86_v2/value_daily.csv'
     df = pd.read_csv(filepath)
     df = df.drop(['Unnamed: 0'], axis=1)
-    mask = (df['time'] >= minyear) & (df['time'] < maxyear)
-    df_masked = df[mask]
-
-    return df_masked
+    df.set_index('time', inplace=True)
+    df_masked = df[minyear:maxyear]
+    return df_masked.reset_index()
 
 
 def gauge_download(station, minyear, maxyear):
@@ -104,7 +97,8 @@ def gauge_download(station, minyear, maxyear):
 
 
 def year_into_days(start_year: float, end_year: float) -> np.array:
-    """Divide years into days
+    """
+    Divide years into days
 
     Args:
         start_year (float): year to start array
