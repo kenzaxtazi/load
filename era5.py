@@ -21,7 +21,7 @@ from load.noaa_indices import indice_downloader
 from load import data_dir
 
 
-def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
+def collect_ERA5(location: str or tuple, minyear: str, maxyear: str) -> xr.DataArray:
     """
     Download data from ERA5 for a given location
 
@@ -47,21 +47,21 @@ def collect_ERA5(location: str or tuple, minyear: float, maxyear: float) -> xr.D
     return ds
 
 
-def gauge_download(station: str, minyear: float, maxyear: float) -> xr.Dataset:
+def gauge_download(station: str, minyear: str, maxyear: str) -> xr.Dataset:
     """ Download and format ERA5 data for a given station name in the Beas and Sutlej basins."""
     # Load data
     era5_da = download_data('beas_sutlej', xarray=True)
     era5_ds = era5_da[['tp', 'z']]
     # Interpolate at location
     all_station_dict = pd.read_csv(
-        '/data/hpcdata/users/kenzi22/data/gauge_info.csv', index_col='station').T
+        data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
     lat, lon, _elv = all_station_dict[station]
     loc_ds = era5_ds.interp(coords={"lon": lon, "lat": lat}, method="nearest")
     tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
     return tim_ds
 
 
-def gauges_download(stations: list, minyear: float, maxyear: float) -> pd.DataFrame:
+def gauges_download(stations: list, minyear: str, maxyear: str) -> pd.DataFrame:
     """ Download and format ERA5 data for a given station list in the Beas and Sutlej basins."""
     # Load data
     era5_da = download_data('beas_sutlej', xarray=True)
@@ -84,7 +84,7 @@ def gauges_download(stations: list, minyear: float, maxyear: float) -> pd.DataFr
     return df
 
 
-def value_gauge_download(stations: list, minyear: float, maxyear: float) -> xr.DataArray:
+def value_gauge_download(stations: list, minyear: str, maxyear: str) -> xr.DataArray:
     """
     Download and format ERA5 data for a given station name in the VALUE dataset.
 

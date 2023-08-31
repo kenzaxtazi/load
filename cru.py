@@ -11,7 +11,7 @@ import load.location_sel as ls
 from load import data_dir
 
 
-def collect_CRU(location: str or tuple, minyear: float, maxyear: float) -> xr.DataArray:
+def collect_CRU(location: str or tuple, minyear: str, maxyear: str) -> xr.DataArray:
     """
     Download interpolated data from CRU model.
 
@@ -23,18 +23,18 @@ def collect_CRU(location: str or tuple, minyear: float, maxyear: float) -> xr.Da
     Returns:
         xr.DataArray: Interpolated CRU data
     """
-    cru_da = xr.open_dataset(data_dir + "CRU/interpolated_cru_1901-2019.nc")
+    cru_ds = xr.open_dataset(data_dir + "CRU/interpolated_cru_1901-2019.nc")
 
     if type(location) == str:
-        loc_da = ls.select_basin(cru_da, location)
+        loc_ds = ls.select_basin(cru_ds, location)
     else:
         lat, lon = location
-        loc_da = cru_da.interp(
+        loc_ds = cru_ds.interp(
             coords={"lon": lon, "lat": lat}, method="nearest")
 
-    tim_da = loc_da.sel(time=slice(minyear, maxyear))
-    da = tim_da.assign_attrs(plot_legend="CRU")  # in mm/month
-    return da
+    tim_ds = loc_ds.sel(time=slice(minyear, maxyear))
+    ds = tim_ds.assign_attrs(plot_legend="CRU")  # in mm/month
+    return ds
 
 
 def download():

@@ -6,13 +6,14 @@ from xmlrpc.client import boolean
 import numpy as np
 import pandas as pd
 import xarray as xr
-#from math import floor, ceil
+# from math import floor, ceil
 from load import data_dir
 
 
-def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray:
+def gauge_download(station: str, minyear: str, maxyear: str) -> xr.DataArray:
     """
-    Download and format raw gauge data.
+    Download and format raw gauge data. The dataset is not cleaned to keep
+    the time dimension consistent.
 
     Args:
         station (str): station name (with first letter capitalised)
@@ -23,33 +24,31 @@ def gauge_download(station: str, minyear: float, maxyear: float) -> xr.DataArray
         xr.DataArray: gauge precipitation values
     """
     filepath = data_dir + 'bs_gauges/RawGauge_BeasSutlej_.xlsx'
-    daily_df = pd.read_excel(filepath, sheet_name=station)
-    # daily_df.dropna(inplace=True)
+    daily_df = pd.read_excel(
+        filepath, sheet_name=station, index_col='Date')
 
     # To months
-    daily_df.set_index('Date', inplace=True)
     daily_df.index = pd.to_datetime(daily_df.index)
-    clean_df = daily_df.dropna()
+    clean_df = daily_df  # .dropna(), we want to keep NaNs for consistency
     with pd.option_context('mode.chained_assignment', None):
         clean_df.loc[:, 'tp'] = pd.to_numeric(
             clean_df.loc[:, 'tp'], errors='coerce')
     df = clean_df.tp.resample('MS').mean()
-    #df = df.reset_index()
-    #df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
-    #df.loc[:, 'Date'] = df['Date'] + 1970
+    # df = df.reset_index()
+    # df.loc[:, 'Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9
+    # df.loc[:, 'Date'] = df['Date'] + 1970
     all_station_dict = pd.read_csv(
         data_dir + 'bs_gauges/gauge_info.csv', index_col='station').T
 
     # to xarray DataSet
     lat, lon, elv = all_station_dict[station]
-    #slope = srtm.find_slope(station).slope.values
-    df_ind = df.set_index('Date')
-    da = df_ind.to_xarray()
+    # slope = srtm.find_slope(station).slope.values
+    da = df.to_xarray().to_dataset()
     da = da.assign_attrs(plot_legend="Gauge data")
     da = da.assign_coords({'lon': lon})
     da = da.assign_coords({'lat': lat})
     da = da.assign_coords(z=('z', [elv]))
-    #da = da.assign_coords(slor=('slor', [slope]))
+    # da = da.assign_coords(slor=('slor', [slope]))
     da = da.rename({'Date': 'time'})
 
     '''
@@ -97,7 +96,7 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
     df_masked.index = pd.to_datetime(df_masked.index)
     df_monthly = df_masked.resample('MS').mean()
     df = df_monthly.reset_index()
-    #df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9 + 1970
+    # df['Date'] = df['Date'].values.astype(float)/365/24/60/60/1e9 + 1970
 
     df_ind = df.set_index('Date')
     da = df_ind.to_xarray()

@@ -31,7 +31,7 @@ from load import data_dir
 # gpm_filepath =  'data/GPM/combi_TRMM_1997_2015_urls.txt'
 
 
-def collect_GPM(location, minyear, maxyear):
+def collect_GPM(location: str, minyear: str, maxyear: str) -> xr.Dataset:
     """ Load GPM data """
     gpm_ds = xr.open_dataset(data_dir + "GPM/gpm_prtmi_1997-2015.nc")
     # "GPM/gpm_pr_unc_2000-2010.nc")
@@ -49,7 +49,7 @@ def collect_GPM(location, minyear, maxyear):
 
 
 def hdf5_download(url_filepath):
-    """ Dowloads the monthly TRMM/GPM datasets """
+    """ Downloads the monthly TRMM/GPM datasets """
 
     with open(url_filepath) as f:
         for line in tqdm(f):
@@ -115,5 +115,5 @@ def to_netcdf():
 
     ds_merged = xr.merge(ds_list)
     print(ds_merged)
-    ds_merged['tp'] = ds_merged['tp'] * 24  # to mm/day
+    ds_merged['tp'] = ds_merged['tp'] * 24  # mm/hour ->  mm/day
     ds_merged.to_netcdf(data_dir + "GPM/gpm_prtmi_1997-2015.nc")
