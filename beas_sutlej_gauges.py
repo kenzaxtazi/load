@@ -81,8 +81,8 @@ def all_gauge_data(minyear: float, maxyear: float, threshold: int = None) -> xr.
     filepath = data_dir + "bs_gauges/qc_sushiwat_observations_MGM.xlsx"
     daily_df = pd.read_excel(filepath)
 
-    maxy_str = str(maxyear) + '-01-01'
-    miny_str = str(minyear) + '-01-01'
+    maxy_str = str(maxyear)[:4] + '-01-01'
+    miny_str = str(minyear)[:4] + '-01-01'
     mask = (daily_df['Date'] >= miny_str) & (daily_df['Date'] < maxy_str)
     df_masked = daily_df[mask]
 
