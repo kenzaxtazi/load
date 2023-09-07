@@ -39,10 +39,10 @@ jobs:
       
       - name: Install conda dependencies
           run: |
-            CONDA/bin/conda env update --file environment.yml --name base
+            $CONDA/bin/conda env update --file environment.yml --name base
         # CONDA is an environment variable pointing to the root of the miniconda directory
         
-        
+
         # Install pytest (if not in conda env) (you can use some other testing utility)
       #- name: Install pytest
       #  run: |
