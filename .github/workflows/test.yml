@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
     #    # Run in all these versions of Python
-        python-version: [3.8, 3.9] # 3.5, 3.6, 3.7, 
+        python-version: [3.9,] # 3.5, 3.6, 3.7, 
 
     steps:
         # Checkout the latest code from the repo
@@ -30,8 +30,8 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
         # Install the package using the setup.py
-      - name: Install package
-        run: python setup.py install
+      #- name: Install package
+      #  run: python setup.py install
       
       # Install the conda environment
       - name: Install conda environment
