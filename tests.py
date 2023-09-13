@@ -83,9 +83,9 @@ def test_collect_is_datetime(collect_function):
 
     dataset = collect_function(
         location=location, minyear=minyear, maxyear=maxyear)
-    assert dataset.time.dtype is np.datetime64, "time is not datetime64"
 
-    assert np.issubdtype(dataset.time.dtype, np.datetime64)
+    assert np.issubdtype(dataset.time.dtype,
+                         np.datetime64),  "time is not datetime64"
 
     dataset_df = dataset.time.to_dataframe()
     dataset_df.set_index('time', inplace=True)
