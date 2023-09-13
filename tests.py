@@ -1,75 +1,88 @@
 # Tests
 
-from load.aphrodite import collect_APHRO
+from load import aphrodite, era5, cordex
 import xarray as xr
 import numpy as np
 import pandas as pd
+import pytest
 
 # test inputs
-minyear = 1970
-maxyear = 1971
+minyear = '1996'
+maxyear = '1998'
 location = 'indus'
 
 # TODO generalise tests for all dataset functions
 
+function_list = [aphrodite.collect_APHRO,
+                 era5.collect_ERA5]
 
-def test_collect_is_dataset():
+
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_is_dataset(collect_function):
     """ Check if dataset is a valid format"""
-    dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
-    assert isinstance(dataset, xr.DataSet), "dataset is not an xarray Dataset"
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
+    assert isinstance(dataset, xr.Dataset), "dataset is not an xarray Dataset"
 
 
-def test_collect_has_tp():
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_has_tp(collect_function):
     """ Check if dataset has 'tp' variable."""
-    dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
-    headers = list(dataset.dims)
-    if 'tp' not in headers:
-        if 'precipitation' in headers:
-            assert 'tp' in headers, "change 'precipiation' dim 'tp'"
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
+    vars = list(dataset)
+    if 'tp' not in vars:
+        if 'precipitation' in vars:
+            assert 'tp' in vars, "change 'precipiation' dim 'tp'"
         else:
-            assert 'tp' in headers, "no 'tp' dim"
+            assert 'tp' in vars, "no 'tp' dim"
 
 
-def test_collect_has_lon():
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_has_lon(collect_function):
     """ Check if dataset has 'lon' variable."""
-    dataset = collect_APHRO(location='indus', minyear=minyear, maxyear=maxyear)
-    headers = list(dataset.dims)
-    if 'lon' not in headers:
-        if 'longitude' in headers:
-            assert 'lon' in headers, "change 'longitude' dim 'lon'"
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
+    dims = list(dataset.dims)
+    if 'lon' not in dims:
+        if 'longitude' in dims:
+            assert 'lon' in dims, "change 'longitude' dim 'lon'"
         else:
-            assert 'lon' in headers, "no 'lon' dim"
+            assert 'lon' in dims, "no 'lon' dim"
 
 
-def test_collect_has_lat():
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_has_lat(collect_function):
     """ Check if dataset has 'lat' variable."""
-    dataset = collect_APHRO(
-        location='indus', minyear=minyear, maxyear=maxyear)
-    headers = list(dataset.dims)
-    if 'lat' not in headers:
-        if 'latitude' in headers:
-            assert 'lat' in headers, "change 'latitude' dim 'lat'"
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
+    dims = list(dataset.dims)
+    if 'lat' not in dims:
+        if 'latitude' in dims:
+            assert 'lat' in dims, "change 'latitude' dim 'lat'"
         else:
-            assert 'lon' in headers, "no 'lon' dim"
+            assert 'lon' in dims, "no 'lon' dim"
 
 
-def test_collect_has_time():
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_has_time(collect_function):
     """Check if dataset has 'time' variable."""
-    dataset = collect_APHRO(
-        location='indus', minyear=minyear, maxyear=maxyear)
-    headers = list(dataset.dims)
-    if 'time' not in headers:
-        if 'date' in headers:
-            assert 'time' in headers, "change 'date' dim 'time'"
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
+    dims = list(dataset.dims)
+    if 'time' not in dims:
+        if 'date' in dims:
+            assert 'time' in dims, "change 'date' dim 'time'"
         else:
-            assert 'time' in headers, "no 'time dim'"
+            assert 'time' in dims, "no 'time dim'"
 
 
-def test_collect_is_datetime():
+@pytest.mark.parametrize("collect_function", function_list)
+def test_collect_is_datetime(collect_function):
     """Check if 'time' is datetime64."""
 
-    dataset = collect_APHRO(
-        location='indus', minyear=minyear, maxyear=maxyear)
+    dataset = collect_function(
+        location=location, minyear=minyear, maxyear=maxyear)
     assert dataset.time.dtype is np.datetime64, "time is not datetime64"
 
     assert np.issubdtype(dataset.time.dtype, np.datetime64)
