@@ -8,6 +8,7 @@ included in the code (see <https://cds.climate.copernicus.eu/api-how-to>).
 """
 
 import os
+import glob
 import datetime
 import numpy as np
 import xarray as xr
@@ -120,7 +121,7 @@ def value_gauge_download(stations: list, minyear: str, maxyear: str) -> xr.DataA
     return df
 
 
-def download_data(location, xarray=False, ensemble=False, all_var=False):
+def download_data(location, xarray=False, ensemble=False, all_var=False, latest=False):
     """
     Downloads data for prepearation or analysis
 
@@ -141,18 +142,31 @@ def download_data(location, xarray=False, ensemble=False, all_var=False):
     path = data_dir + "ERA5/"
     now = datetime.datetime.now()
 
-    if ensemble is True:
-        filename = "combi_data_ensemble" + "_" + \
-            basin + "_" + now.strftime("%m-%Y") + ".csv"
-    if all_var is True:
-        filename = "all_data" + "_" + basin + \
-            "_" + now.strftime("%m-%Y") + ".csv"
-    if ensemble is False:
-        filename = "combi_data" + "_" + basin + \
-            "_" + now.strftime("%m-%Y") + ".csv"
+    if latest == True:
+        if ensemble is True:
+            filename = "combi_data_ensemble" + "_" + \
+                basin + "_" + now.strftime("%Y-%m") + ".csv"
+        if all_var is True:
+            filename = "all_data" + "_" + basin + \
+                "_" + now.strftime("%Y-%m") + ".csv"
+        if ensemble is False:
+            filename = "combi_data" + "_" + basin + \
+                "_" + now.strftime("%Y-%m") + ".csv"
 
-    filepath = os.path.expanduser(path + filename)
-    print(filepath)
+        filepath = os.path.expanduser(path + filename)
+        print(filepath)
+
+    if latest == False:
+        if ensemble is True:
+            # choose first file
+            filepath = glob.glob(
+                path + "combi_data_ensemble" + "_" + basin + "*.csv")[0]
+        if all_var is True:
+            filepath = glob.glob(path + "all_data" + "_" + basin + "*.csv")[0]
+        if ensemble is False:
+            filepath = glob.glob(path + "combi_data" +
+                                 "_" + basin + "*.csv")[0]
+        print(filepath)
 
     if not os.path.exists(filepath):
        # print(basin)
