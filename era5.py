@@ -142,6 +142,27 @@ def download_data(location, xarray=False, ensemble=False, all_var=False, latest=
     path = data_dir + "ERA5/"
     now = datetime.datetime.now()
 
+    if latest == False:
+        if ensemble is True:
+            # choose first file or make up filename
+            try:
+                filepath = glob.glob(
+                path + "combi_data_ensemble" + "_" + basin + "*.csv")[0]
+            except:
+                latest = True
+        if all_var is True:
+            try:
+                filepath = glob.glob(path + "all_data" + "_" + basin + "*.csv")[0]
+            except:
+                latest = True
+        if ensemble is False:
+            try:
+                filepath = glob.glob(path + "combi_data" +
+                                 "_" + basin + "*.csv")[0]
+            except:
+                latest = True
+        print(filepath)
+
     if latest == True:
         if ensemble is True:
             filename = "combi_data_ensemble" + "_" + \
@@ -154,27 +175,6 @@ def download_data(location, xarray=False, ensemble=False, all_var=False, latest=
                 "_" + now.strftime("%Y-%m") + ".csv"
 
         filepath = os.path.expanduser(path + filename)
-        print(filepath)
-
-    if latest == False:
-        if ensemble is True:
-            # choose first file or make up filename
-            try:
-                filepath = glob.glob(
-                path + "combi_data_ensemble" + "_" + basin + "*.csv")[0]
-            except:
-                filepath = 'nofiles'
-        if all_var is True:
-            try:
-                filepath = glob.glob(path + "all_data" + "_" + basin + "*.csv")[0]
-            except:
-                filepath = 'nofiles'
-        if ensemble is False:
-            try:
-                filepath = glob.glob(path + "combi_data" +
-                                 "_" + basin + "*.csv")[0]
-            except:
-                filepath = 'nofiles'
         print(filepath)
 
     if not os.path.exists(filepath):
