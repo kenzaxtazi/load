@@ -65,7 +65,7 @@ def gauge_download(station: str, minyear: str, maxyear: str) -> xr.Dataset:
 def gauges_download(stations: list, minyear: str, maxyear: str) -> pd.DataFrame:
     """ Download and format ERA5 data for a given station list in the Beas and Sutlej basins."""
     # Load data
-    era5_da = download_data('beas_sutlej', xarray=True)
+    era5_da = download_data('indus', xarray=True)
     era5_ds = era5_da[['tp']]
     # Interpolate at location
     all_station_dict = pd.read_csv(
