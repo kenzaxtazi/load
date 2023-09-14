@@ -158,14 +158,23 @@ def download_data(location, xarray=False, ensemble=False, all_var=False, latest=
 
     if latest == False:
         if ensemble is True:
-            # choose first file
-            filepath = glob.glob(
+            # choose first file or make up filename
+            try:
+                filepath = glob.glob(
                 path + "combi_data_ensemble" + "_" + basin + "*.csv")[0]
+            except:
+                filepath = 'nofiles'
         if all_var is True:
-            filepath = glob.glob(path + "all_data" + "_" + basin + "*.csv")[0]
+            try:
+                filepath = glob.glob(path + "all_data" + "_" + basin + "*.csv")[0]
+            except:
+                filepath = 'nofiles'
         if ensemble is False:
-            filepath = glob.glob(path + "combi_data" +
+            try:
+                filepath = glob.glob(path + "combi_data" +
                                  "_" + basin + "*.csv")[0]
+            except:
+                filepath = 'nofiles'
         print(filepath)
 
     if not os.path.exists(filepath):
