@@ -1,6 +1,6 @@
 import sys
 
-data_dir = '/data/hpcdata/users/kenzi22/data/'
-code_dir = '/data/hpcdata/users/kenzi22'
+data_dir = ''
+code_dir = ''
 
 sys.path.append(code_dir)
