@@ -192,9 +192,9 @@ def download_data(location, xarray=False, ensemble=False, all_var=False, latest=
             uib_eofs_df = eof_downloader(basin, all_var=all_var)
 
             # Combine
-            df_combined = pd.merge_ordered(df_combined, mean_df, on="time")
+            df_combined2 = pd.merge_ordered(df_combined, mean_df, on="time")
             df_combined = pd.merge_ordered(
-                df_combined, uib_eofs_df, on=["time", "latitude", "longitude"]
+                df_combined2, uib_eofs_df, on=["time", "latitude", "longitude"]
             )
 
         # Choose experiment version 1
@@ -292,7 +292,9 @@ def mean_downloader(basin):
     temp_filepath = update_cds_monthly_data(
         variables=["2m_temperature"], area=basin, qualifier="temp"
     )
-    temp_df = mean_formatter(temp_filepath)
+    temp_df = mean_formatter(temp_filepath)[['d2m']]
+    temp_df.rename(columns={"d2m": "t2m"}, inplace=True)
+    temp_df.reset_index(inplace=True)
 
     # EOFs for 200hPa
     eof1_z200_c = mean_formatter(
@@ -353,6 +355,7 @@ def mean_downloader(basin):
         ],
         axis=1,
     )
+    eof_df.reset_index(inplace=True)
 
     mean_df = pd.merge_ordered(temp_df, eof_df, on="time")
 
@@ -368,7 +371,7 @@ def eof_downloader(basin, all_var=False):
         if "expver" in list(da.dims):
             da = da.sel(expver=1)
         (latmax, lonmin, latmin, lonmax) = ls.basin_extent(basin)
-        sliced_da = da.sel(latitude=slice(latmin, latmax),
+        sliced_da = da.sel(latitude=slice(latmax, latmin),
                            longitude=slice(lonmin, lonmax))
 
         eof_ds = sliced_da.EOF
