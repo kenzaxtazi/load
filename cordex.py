@@ -1,57 +1,58 @@
 import xarray as xr
 import numpy as np
 import datetime
+import glob
 from load import data_dir
 
 
-def collect_CORDEX() -> xr.DataArray:
+def collect_CORDEX(domain: str, minyear: str, maxyear: str, experiment: str, rcm_model: str, gcm_model: str, freq='mon') -> xr.DataArray:
     """
-    Downloads data from CORDEX East Asia model.
-
-    Returns:
-        xr.DataArray: CORDEX East Asia data
-    """
-
-    cordex_90_da = xr.open_dataset(
-        data_dir + "cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
-        "HadRM3P_v1_mon_199001-199012.nc")
-    cordex_91_00_da = xr.open_dataset(
-        data_dir + "cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
-        "HadRM3P_v1_mon_199101-200012.nc")
-    cordex_01_da = xr.open_dataset(
-        data_dir + "cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
-        "HadRM3P_v1_mon_200101-201012.nc")
-    cordex_02_11_da = xr.open_dataset(
-        data_dir + "cordex/pr_EAS-44i_ECMWF-ERAINT_evaluation_r1i1p1_MOHC-"
-        "HadRM3P_v1_mon_201101-201111.nc")
-    cordex_90_00_da = cordex_90_da.merge(cordex_91_00_da)
-    cordex_01_11_da = cordex_01_da.merge(cordex_02_11_da)
-    cordex_da = cordex_01_11_da.merge(cordex_90_00_da)  # in kg/m2/s
-    cordex_da = cordex_da.assign_attrs(
-        plot_legend="CORDEX EA - MOHC-HadRM3P historical")
-    cordex_da = cordex_da.rename_vars({'pr': 'tp'})
-    cordex_da['tp'] *= 60 * 60 * 24   # to mm/day
-    cordex_da['time'] = standardised_time(cordex_da)
-
-    return cordex_da
-
-
-def standardised_time(dataset: xr.DataArray) -> np.array:
-    """
-    Return array of standardised times to plot.
+    Collect CORDEX data and standardise time.
 
     Args:
-        dataset (xr.DataArray): 
+        domain (str): CORDEX domain (EAS or WAS)
+        minyear (str): minimum year of data
+        maxyear (str): maximum year of data (exclusive)
+        experiment (str): experiment name
+        rcm_model (str): RCM model name
+        gcm_model (str): GCM model name
+        freq (str): frequency of data (mon or day)
 
     Returns:
-        np.array: standardised time values
+        xr.DataArray: output CORDEX data
     """
-    try:
-        utime = dataset.time.values.astype(int)/(1e9 * 60 * 60 * 24 * 365)
-    except Exception:
-        time = np.array([d.strftime() for d in dataset.time.values])
-        time2 = np.array([datetime.datetime.strptime(
-            d, "%Y-%m-%d %H:%M:%S") for d in time])
-        utime = np.array([d.timestamp()
-                          for d in time2]) / (60 * 60 * 24 * 365)
-    return (utime + 1970)
+
+    # generate list of files
+    path = data_dir + "CORDEX/" + domain + "/" + freq + "/" + experiment + "/"
+    all_files = glob.glob(path+'*')
+
+    # sort files
+    file_list = []
+    for f in all_files:
+        f_minyear = f.split("_")[-1].split('-')[-2][:4]
+        f_maxyear = f.split("_")[-1].split('-')[-1][:4]
+
+        if experiment in f:
+            if gcm_model in f:
+                if rcm_model in f:
+                    if int(f_maxyear) > int(minyear):
+                        if int(f_minyear) < int(maxyear):
+                            file_list.append(f)
+
+    # load data
+    ds_list = []
+    for f in file_list:
+        ds = xr.open_dataset(f)
+        ds['time'] = ds['time'].astype('datetime64[M]')
+        ds_list.append(ds)
+
+    # concatenate data
+    cordex_ds = xr.concat(ds_list, 'time')
+    cordex_ds = cordex_ds.sortby('time')
+    cordex_ds = cordex_ds.assign_attrs(
+        plot_legend="CORDEX " + domain + " " + gcm_model + " " + rcm_model + " " + experiment,)
+    cordex_ds = cordex_ds.rename_vars({'pr': 'tp'})
+    cordex_ds['tp'] *= 86400   # to mm/day
+    sliced_cordex_ds = cordex_ds.sel(time=slice(minyear, maxyear))
+
+    return  sliced_cordex_ds
