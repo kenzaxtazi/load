@@ -46,7 +46,7 @@ def merge_og_files():
     """Function to open, crop and merge the raw APHRODITE data files."""
 
     ds_list = []
-    extent = ls.basin_extent('indus')
+    extent = ls.basin_extent('hma')
 
     print('1951-2007')
     for f in tqdm(glob.glob(data_dir +
@@ -81,4 +81,4 @@ def merge_og_files():
     time_arr = np.arange(round(minyear) + 1./24., round(maxyear), 1./12.)
     da_merged['time'] = time_arr
     '''
-    ds_merged.to_netcdf(data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
+    ds_merged.to_netcdf(data_dir + "APHRODITE/aphrodite_hma_1951_2016.nc")

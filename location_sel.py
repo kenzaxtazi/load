@@ -27,6 +27,7 @@ def find_mask(location):
                 'sutlej':  data_dir + 'Masks/Sutlej_mask.nc',
                 'beas':  data_dir + 'Masks/Beas_mask.nc',
                 'beas_sutlej':  data_dir + 'Masks/Beas_Sutlej_mask.nc',
+                'hma': None,
                 'korea': None,
                 'france': None,
                 'value': None,
@@ -87,6 +88,7 @@ def apply_mask(data, mask_filepath):
 def basin_extent(string):
     """ Returns extent of basin to save data """
     basin_dic = {'indus': [40, 65, 25, 85],
+                 'hma': [42, 60, 20, 110],
                  'france': [48, -2, 41, 10],
                  'korea': [39, 124, 33, 131],
                  'value': [71, -10, 36, 32]}
