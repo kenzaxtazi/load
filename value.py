@@ -26,22 +26,23 @@ def formatting_data(monthly=True):
     df = df.astype(float, errors='ignore')
     df['time'] = pd.to_datetime(df['YYYYMMDD'], format="%Y%m%d")
     df = df.drop(columns=['YYYYMMDD'])
+    df.set_index('time', inplace=True)
 
+    # Reformat columns
+    df1 = df.stack().reset_index()
+    df1 = df1.rename({"level_1": "station_id", 0: "tp"}, axis=1)
+    df1['station_id'] = df1['station_id'].astype(int)
+    
     # Resample
     if monthly == True:
-        df = df.resample('MS', on='time').mean()
-
-    # Rename columns
-    df2 = df.stack().reset_index()
-    df2 = df2.rename(
-        {"level_0": 'time', "level_1": "station_id", 0: "tp"}, axis=1)
+        df1 = df1.groupby('station_id').resample('MS', on='time', fill_method='ffill').mean()
+        df1 = df1.drop(columns=['station_id']).reset_index()
 
     # Import station data and combine
     df4 = pd.read_csv(data_dir + 'VALUE_ECA_86_v2/stations.txt',
                       sep='\t', lineterminator='\r')
-    df2['station_id'] = df2['station_id'].astype(int)
     df4['station_id'] = df4['station_id'].astype(int)
-    df7 = df2.join(df4.set_index('station_id'), on='station_id')
+    df7 = df1.join(df4.set_index('station_id'), on='station_id')
 
     df7 = df7.rename({'longitude': 'lon', 'latitude': 'lat',
                      'altitude': 'z', }, axis=1)
@@ -55,15 +56,15 @@ def formatting_data(monthly=True):
             data_dir + 'VALUE_ECA_86_v2/value_daily.csv')
 
 
-def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True) -> pd.DataFrame:
+def all_gauge_data(minyear:str, maxyear:str, threshold=None, monthly=True) -> pd.DataFrame:
     """    
     Download data between specified dates for all active stations between two dates.
     Can specify threshold for the the total number of active days during period:
             e.g. for 10 year period -> 4018 - 365 = 3653
 
     Args:
-        minyear (float): start year
-        maxyear (float): end year
+        minyear (str): start year
+        maxyear (str): end year
         threshold (_type_, optional): threshold value. Defaults to None.
         monthly (bool, optional): whether to return monthly or daily data. Defaults to True.
 
@@ -76,6 +77,7 @@ def all_gauge_data(minyear: float, maxyear: float, threshold=None, monthly=True)
         filepath = data_dir + 'VALUE_ECA_86_v2/value_daily.csv'
     df = pd.read_csv(filepath)
     df = df.drop(['Unnamed: 0'], axis=1)
+    df['time'] = pd.to_datetime(df['time'])
     df.set_index('time', inplace=True)
     df_masked = df[minyear:maxyear]
     return df_masked.reset_index()
