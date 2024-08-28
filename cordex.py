@@ -29,12 +29,18 @@ def collect_CORDEX(domain: str, minyear: str, maxyear: str, experiment: str, rcm
     # sort files
     file_list = []
     for f in all_files:
-        f_minyear = f.split("_")[-1].split('-')[-2][:4]
-        f_maxyear = f.split("_")[-1].split('-')[-1][:4]
+        try:
+            f_minyear = f.split("_")[-1].split('-')[-2][:4]
+            f_maxyear = f.split("_")[-1].split('-')[-1][:4]
+        except:
+            print(f)
 
         if experiment in f:
+            #print(experiment)
             if gcm_model in f:
+                #print(gcm_model)
                 if rcm_model in f:
+                    #print(rcm_model)
                     if int(f_maxyear) > int(minyear):
                         if int(f_minyear) < int(maxyear):
                             file_list.append(f)
