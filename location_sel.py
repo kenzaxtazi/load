@@ -1,5 +1,5 @@
 """
-Functions to help dowload data given
+Functions to help download data given
 - Basin name
 - Sub-basin name
 - Coordinates
@@ -24,6 +24,7 @@ def find_mask(location):
                 'khyber': data_dir + 'Masks/Khyber_mask.nc',
                 'gilgit': data_dir + 'Masks/Gilgit_mask.nc',
                 'uib':  data_dir + 'Masks/ERA5_Upper_Indus_mask.nc',
+                'indus':  data_dir + 'Masks/ERA5_Upper_Indus_mask.nc',
                 'sutlej':  data_dir + 'Masks/Sutlej_mask.nc',
                 'beas':  data_dir + 'Masks/Beas_mask.nc',
                 'beas_sutlej':  data_dir + 'Masks/Beas_Sutlej_mask.nc',
@@ -40,7 +41,7 @@ def basin_finder(loc):
     """
     Finds basin to load data from.
     Input
-        loc: list of coordinates [lat, lon] or string refering to an area.
+        loc: list of coordinates [lat, lon] or string referring to an area.
     Output
         basin , string: name of the basin.
     """
@@ -55,16 +56,16 @@ def basin_finder(loc):
         print('Not a string')
 
 
-def apply_mask(data, mask_filepath):
+def apply_mask(data: str | xr.Dataset , mask_filepath:str)-> xr.Dataset:
     """
-    Opens NetCDF files and applies mask to data can also interp data to mask
-    grid.
-    Inputs:
-        data (filepath string or NetCDF)
-        mask_filepath (filepath string)
-        interp (boolean): nearest-neighbour interpolation
-    Return:
-        A Data Array
+    Opens NetCDF files and applies mask to data.
+
+    Args:
+        data (xr.Dataset): _description_
+        mask_filepath (str): _description_
+
+    Returns:
+        xr.Dataset: _description_
     """
     if data is str:
         da = xr.open_dataset(data)
@@ -73,8 +74,10 @@ def apply_mask(data, mask_filepath):
             da = da.sel(expver=1)
     else:
         da = data
+
     mask = xr.open_dataset(mask_filepath)
-    mask = mask.rename({'latitude': 'lat', 'longitude': 'lon'})
+    if 'latitude' in list(mask.dims):
+        mask = mask.rename({'latitude': 'lat', 'longitude': 'lon'})
     mask_da = mask.overlap
 
     try:
@@ -85,9 +88,10 @@ def apply_mask(data, mask_filepath):
     return masked_da
 
 
-def basin_extent(string):
+def basin_extent(string:str) -> list:
     """ Returns extent of basin to save data """
     basin_dic = {'indus': [40, 65, 25, 85],
+                 'uib': [40, 65, 25, 85],
                  'hma': [42, 60, 20, 110],
                  'france': [48, -2, 41, 10],
                  'korea': [39, 124, 33, 131],
