@@ -28,7 +28,7 @@ def collect_APHRO(location: str or tuple, minyear: str, maxyear: str) -> xr.Data
     """
 
     aphro_ds = xr.open_dataset(
-        data_dir + "APHRODITE/aphrodite_indus_1951_2016.nc")
+        data_dir + "APHRODITE/aphrodite_hma_1951_2016.nc")
 
     if type(location) == str:
         loc_ds = ls.select_basin(aphro_ds, location)
